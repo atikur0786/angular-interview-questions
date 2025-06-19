@@ -66,3 +66,82 @@ This open-source guide covers foundational Angular interview questions with clea
 <div align="right">
     <b><a href="#table-of-contents">↥ back to top</a></b>
 </div>
+
+## 2. What are components, and how do you create one?
+
+In Angular, a **component** is the **fundamental building block** of the UI. Every Angular application is made up of components arranged in a tree-like structure, starting from the **root component** (`AppComponent`).
+
+A component controls:
+
+- A **template** (HTML for view rendering)
+- A **class** (TypeScript for logic and data)
+- **CSS/SCSS styles** (optional styling)
+
+Each component is **encapsulated** and **reusable**, which supports modular and maintainable architecture.
+
+---
+
+#### ✅ Anatomy of a Component
+
+```ts
+import { Component } from "@angular/core";
+
+@Component({
+  selector: "app-hello",
+  templateUrl: "./hello.component.html",
+  styleUrls: ["./hello.component.css"],
+})
+export class HelloComponent {
+  message = "Hello, Angular!";
+}
+```
+
+| Part          | Description                                        |
+| ------------- | -------------------------------------------------- |
+| `selector`    | The custom HTML tag used to embed the component    |
+| `templateUrl` | Points to the HTML file for the component          |
+| `styleUrls`   | Links to the component's styles                    |
+| `class`       | Contains logic, data, methods, and lifecycle hooks |
+
+---
+
+#### 🛠️ How to Create a Component
+
+Use Angular CLI for easy scaffolding:
+
+```bash
+ng generate component my-component
+# or shorthand
+ng g c my-component
+```
+
+This creates:
+
+```
+src/app/my-component/
+├── my-component.component.ts      // Component class
+├── my-component.component.html    // Template
+├── my-component.component.css     // Styles
+└── my-component.component.spec.ts // Test file
+```
+
+---
+
+#### 📌 How to Use a Component
+
+Once created, you can use the component selector (`<app-my-component></app-my-component>`) inside any template, such as `app.component.html`.
+
+---
+
+#### 🎯 Summary for Interviews:
+
+- A **component** in Angular is a **self-contained UI unit** made of template, class, and style.
+- Components follow a **modular structure** and support **reuse and testing**.
+- You create components using `@Component()` decorator.
+- Angular CLI makes component generation fast and consistent.
+
+---
+
+<div align="right">
+    <b><a href="#table-of-contents">↥ back to top</a></b>
+</div>
