@@ -145,3 +145,90 @@ Once created, you can use the component selector (`<app-my-component></app-my-co
 <div align="right">
     <b><a href="#table-of-contents">↥ back to top</a></b>
 </div>
+
+## 3. What is a module in Angular? What is `NgModule`?
+
+In Angular, a **module** is a mechanism to group related parts of an application together — such as components, directives, pipes, and services — into **a cohesive block of functionality**.
+
+Angular uses **NgModules** to define these blocks. Every Angular app has at least **one root module** called `AppModule`, and can have multiple **feature modules** for better modularity and lazy loading.
+
+---
+
+#### ✅ What is `@NgModule`?
+
+`@NgModule` is a **decorator function** that takes a **metadata object** and tells Angular how to compile and launch the application.
+
+```ts
+import { NgModule } from "@angular/core";
+import { BrowserModule } from "@angular/platform-browser";
+import { AppComponent } from "./app.component";
+
+@NgModule({
+  declarations: [
+    AppComponent, // Components, directives, pipes
+  ],
+  imports: [
+    BrowserModule, // Other Angular modules
+  ],
+  providers: [], // Services or global providers
+  bootstrap: [AppComponent], // Root component to bootstrap
+})
+export class AppModule {}
+```
+
+---
+
+#### 🔑 Key Properties of `NgModule`:
+
+| Property       | Purpose                                                                 |
+| -------------- | ----------------------------------------------------------------------- |
+| `declarations` | Declares components, directives, and pipes owned by the module          |
+| `imports`      | Imports other Angular modules (e.g., `FormsModule`, `HttpClientModule`) |
+| `providers`    | Registers services and injectables                                      |
+| `bootstrap`    | Lists the root component (only in the root module)                      |
+| `exports`      | Makes components/directives/pipes available to other modules            |
+
+---
+
+#### 📦 Why Use Modules?
+
+- Encourages **separation of concerns**
+- Enables **lazy loading** of features
+- Makes the application **more scalable and maintainable**
+- Supports **reusability** of shared modules across features
+
+---
+
+#### 🧱 Types of Angular Modules
+
+1. **Root Module** – The main app module (`AppModule`)
+2. **Feature Modules** – Domain-specific modules (e.g., `UserModule`)
+3. **Shared Module** – Common components/pipes used across multiple modules
+4. **Core Module** – Singleton services and global utilities
+
+---
+
+#### 🛠️ Creating a Module via CLI
+
+```bash
+ng generate module user
+# or shorthand
+ng g m user
+```
+
+This will generate a new file: `user.module.ts`.
+
+---
+
+#### 🎯 Summary for Interviews:
+
+- An Angular **module** is a container for a cohesive block of functionality.
+- The `@NgModule` decorator defines how the module behaves.
+- Modules allow for **code organization**, **reuse**, **scalability**, and **lazy loading**.
+- Every Angular app must have a **root module**, and can have multiple **feature/shared modules**.
+
+---
+
+<div align="right">
+    <b><a href="#table-of-contents">↥ back to top</a></b>
+</div>
