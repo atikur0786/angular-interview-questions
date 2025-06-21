@@ -232,3 +232,116 @@ This will generate a new file: `user.module.ts`.
 <div align="right">
     <b><a href="#table-of-contents">↥ back to top</a></b>
 </div>
+
+## 4. What are services in Angular and how are they injected?
+
+In Angular, a **service** is a **reusable class** that contains business logic, data access methods, or shared functionality — **independent of any component**.
+
+Services help:
+
+- Keep components clean and focused on the UI
+- Promote code reuse
+- Enable separation of concerns
+- Facilitate testing
+
+Angular uses a **Dependency Injection (DI)** system to **inject services** where they are needed.
+
+---
+
+#### ✅ Creating a Service
+
+Use the Angular CLI:
+
+```bash
+ng generate service user
+# or shorthand
+ng g s user
+```
+
+This generates:
+
+```bash
+src/app/user.service.ts
+```
+
+---
+
+#### 🛠️ Example Service
+
+```ts
+// user.service.ts
+import { Injectable } from "@angular/core";
+
+@Injectable({
+  providedIn: "root", // Makes the service available app-wide
+})
+export class UserService {
+  getUsers() {
+    return ["Alice", "Bob", "Charlie"];
+  }
+}
+```
+
+- The `@Injectable()` decorator tells Angular that this class can be injected as a dependency.
+- `providedIn: 'root'` makes it a **singleton**, available throughout the app without needing to register it in a module manually.
+
+---
+
+#### 📥 Injecting a Service into a Component
+
+```ts
+import { Component, OnInit } from "@angular/core";
+import { UserService } from "./user.service";
+
+@Component({
+  selector: "app-user-list",
+  template: `<ul>
+    <li *ngFor="let user of users">{{ user }}</li>
+  </ul>`,
+})
+export class UserListComponent implements OnInit {
+  users: string[] = [];
+
+  constructor(private userService: UserService) {}
+
+  ngOnInit() {
+    this.users = this.userService.getUsers();
+  }
+}
+```
+
+---
+
+#### 🔍 How Dependency Injection Works in Angular
+
+- Angular maintains an **injector tree**.
+- When a class requires a dependency (like a service), Angular looks for a **provider** of that dependency in the injector hierarchy.
+- Services declared with `providedIn: 'root'` are registered in the **root injector**, making them **singletons** shared across the app.
+
+---
+
+#### 🧱 Alternative: Providing Services in a Module
+
+If you don’t want to use `providedIn: 'root'`, you can register a service in a module manually:
+
+```ts
+@NgModule({
+  providers: [UserService],
+})
+export class AppModule {}
+```
+
+---
+
+#### 🎯 Summary for Interviews:
+
+- A **service** in Angular is a class that holds shared logic (e.g., fetching data, utilities, state).
+- Use the **`@Injectable()` decorator** to make it available for DI.
+- Angular uses **Dependency Injection** to inject services into components, pipes, or other services.
+- Services with `providedIn: 'root'` are **singletons** across the entire app.
+
+---
+
+<div align="right">
+    <b><a href="#table-of-contents">↥ back to top</a></b>
+</div>
