@@ -345,3 +345,81 @@ export class AppModule {}
 <div align="right">
     <b><a href="#table-of-contents">↥ back to top</a></b>
 </div>
+
+## 5. What is the difference between `constructor()` and `ngOnInit()`?
+
+In Angular, both `constructor()` and `ngOnInit()` are used in component classes — but they serve **different purposes** in the component lifecycle.
+
+Understanding their roles is key to writing maintainable and performant Angular code.
+
+---
+
+### 🏗️ `constructor()`
+
+The `constructor()` is a **TypeScript feature** (not Angular-specific) that gets called when the class is instantiated. It’s mainly used to **inject dependencies** via Angular's **Dependency Injection (DI)** system.
+
+```ts
+constructor(private userService: UserService) {
+  console.log('Constructor called');
+}
+```
+
+> ✅ Use `constructor()` only for **dependency injection** or simple initializations that don't rely on Angular bindings.
+
+---
+
+### ⚙️ `ngOnInit()`
+
+`ngOnInit()` is a **lifecycle hook** provided by Angular. It's called **after Angular has initialized all data-bound properties** of the component.
+
+It is the ideal place to:
+
+- Perform initialization logic
+- Call APIs
+- Access `@Input()` properties
+- Set up observables or timers
+
+```ts
+ngOnInit() {
+  console.log('ngOnInit called');
+  this.users = this.userService.getUsers();
+}
+```
+
+To use it, the class must implement the `OnInit` interface:
+
+```ts
+import { OnInit } from "@angular/core";
+
+export class MyComponent implements OnInit {
+  ngOnInit() {
+    // logic here
+  }
+}
+```
+
+---
+
+### 🔍 Comparison Table
+
+| Feature                  | `constructor()`                          | `ngOnInit()`                                    |
+| ------------------------ | ---------------------------------------- | ----------------------------------------------- |
+| Type                     | TypeScript feature                       | Angular lifecycle hook                          |
+| Called when?             | When the component class is instantiated | After input properties are set (component init) |
+| Use for DI?              | ✅ Yes                                   | ❌ No                                           |
+| Safe to access bindings? | ❌ No                                    | ✅ Yes                                          |
+| Typical uses             | Dependency injection, minimal setup      | API calls, data initialization, logic execution |
+
+---
+
+### 🎯 Summary for Interviews:
+
+- `constructor()` is used for **injecting dependencies** and basic setup.
+- `ngOnInit()` is used for **initializing component logic**, fetching data, or interacting with `@Input()` values.
+- Always prefer `ngOnInit()` for logic that depends on Angular bindings or services.
+
+---
+
+<div align="right">
+    <b><a href="#table-of-contents">↥ back to top</a></b>
+</div>
