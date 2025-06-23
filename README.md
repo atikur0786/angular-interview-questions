@@ -423,3 +423,91 @@ export class MyComponent implements OnInit {
 <div align="right">
     <b><a href="#table-of-contents">↥ back to top</a></b>
 </div>
+
+## 6. What is two-way data binding and how do you use it?
+
+**Two-way data binding** is a mechanism in Angular that allows automatic synchronization of data **between the component class and the view (HTML template)**.
+
+When the user updates the input in the UI, the model updates in the component class, and vice versa — **instantly reflecting changes in both directions**.
+
+---
+
+### 🔁 How Two-Way Binding Works
+
+Angular achieves two-way binding using a **combination of property binding and event binding**:
+
+```html
+<input [value]="name" (input)="name = $event.target.value" />
+```
+
+To simplify this, Angular provides the **banana-in-a-box syntax**:
+
+```html
+<input [(ngModel)]="name" />
+```
+
+---
+
+### 🛠️ How to Use Two-Way Binding in Angular
+
+1. Import `FormsModule` in your module:
+
+```ts
+import { FormsModule } from "@angular/forms";
+
+@NgModule({
+  imports: [FormsModule],
+})
+export class AppModule {}
+```
+
+2. Use `[(ngModel)]` in your component template:
+
+```ts
+<!-- app.component.html -->
+<input [(ngModel)]="username" placeholder="Enter your name" />
+<p>Hello, {{ username }}!</p>
+```
+
+3. Define the property in your component class:
+
+```ts
+// app.component.ts
+export class AppComponent {
+  username: string = "";
+}
+```
+
+As the user types, `username` is updated in real-time, and any programmatic update to `username` is instantly reflected in the UI.
+
+---
+
+### ⚠️ When to Use Two-Way Binding
+
+- Form inputs
+- Filters and search bars
+- Editable fields
+- Real-time UI updates based on user input
+
+---
+
+### 🔍 Best Practices
+
+- Use `[(ngModel)]` only for **form inputs or editable UI elements**.
+- Avoid overusing two-way binding for large-scale data, which may hurt performance.
+- Prefer **Reactive Forms** for complex, scalable form handling in large apps.
+
+---
+
+### 🎯 Summary for Interviews:
+
+- Two-way data binding keeps the **component and view in sync** automatically.
+- Achieved using `[(ngModel)]`, which is syntactic sugar for `[value]` and `(input)` binding.
+- Requires importing `FormsModule`.
+- Ideal for **simple forms and interactive UI elements**.
+
+---
+
+<div align="right">
+    <b><a href="#table-of-contents">↥ back to top</a></b>
+</div>
