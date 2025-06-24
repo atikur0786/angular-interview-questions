@@ -511,3 +511,99 @@ As the user types, `username` is updated in real-time, and any programmatic upda
 <div align="right">
     <b><a href="#table-of-contents">↥ back to top</a></b>
 </div>
+
+## 7. Explain interpolation, property binding, and event binding.
+
+In Angular, **data binding** is the mechanism to coordinate the data between your component class and the view. Angular supports several types of data binding depending on the direction of data flow.
+
+This question is commonly asked to evaluate your understanding of Angular's **unidirectional and bidirectional data flow**.
+
+---
+
+### 🟡 Interpolation (`{{ ... }}`)
+
+Interpolation is used to **display data from the component class into the HTML template**.
+
+```html
+<p>Welcome, {{ username }}!</p>
+```
+
+- `username` is a property in the component class.
+- Angular replaces `{{ username }}` with the actual value.
+
+✅ **One-way data binding**: Component → View
+❌ Cannot be used for HTML element properties (like `disabled`, `src`, etc.)
+
+---
+
+### 🟡 Property Binding (`[property]`)
+
+Property binding allows you to **bind DOM element properties** to values in the component.
+
+```html
+<img [src]="profileImage" /> <button [disabled]="isLoading">Submit</button>
+```
+
+- The value of `profileImage` is bound to the `src` attribute.
+- The button is disabled when `isLoading` is `true`.
+
+✅ Safe and dynamic
+✅ Works with DOM and Angular component input properties
+
+---
+
+### 🟡 Event Binding (`(event)`)
+
+Event binding is used to **handle events raised by DOM elements** (e.g., click, input, change) and trigger methods in your component class.
+
+```html
+<button (click)="submitForm()">Submit</button>
+<input (input)="onNameChange($event)" />
+```
+
+- When the button is clicked, `submitForm()` is called.
+- `(event)` captures events like `click`, `input`, `change`, etc.
+
+✅ **One-way data binding**: View → Component
+✅ Ideal for responding to user actions
+
+---
+
+### 🔄 Combine All for Two-Way Binding
+
+Two-way data binding is a combination of property and event binding:
+
+```html
+<input [(ngModel)]="username" />
+```
+
+It’s equivalent to:
+
+```html
+<input [value]="username" (input)="username = $event.target.value" />
+```
+
+---
+
+### 🔍 Comparison Table
+
+| Type             | Syntax                | Data Flow        | Use Case                           |
+| ---------------- | --------------------- | ---------------- | ---------------------------------- |
+| Interpolation    | `{{ value }}`         | Component → View | Displaying strings or variables    |
+| Property Binding | `[prop]="value"`      | Component → View | DOM or custom component properties |
+| Event Binding    | `(event)="handler()"` | View → Component | Handling user interactions         |
+
+---
+
+### 🎯 Summary for Interviews:
+
+- **Interpolation**: Binds string values into the template.
+- **Property binding**: Dynamically updates DOM element or component properties.
+- **Event binding**: Listens for user actions and handles them in the component.
+- Together, they form the basis for powerful UI interactions in Angular.
+
+---
+
+<div align="right">
+    <b><a href="#table-of-contents">↥ back to top</a></b>
+</div>
