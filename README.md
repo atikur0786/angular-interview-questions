@@ -607,3 +607,101 @@ It’s equivalent to:
 <div align="right">
     <b><a href="#table-of-contents">↥ back to top</a></b>
 </div>
+
+## 8. What is the role of `@Input()` and `@Output()`?
+
+In Angular, `@Input()` and `@Output()` are **decorators** that enable **communication between parent and child components**.
+
+They are essential tools for **component interaction** in a modular architecture.
+
+---
+
+### 🔁 When Are They Used?
+
+- Use `@Input()` when the **parent needs to pass data to a child**.
+- Use `@Output()` when the **child needs to emit an event to the parent**.
+
+This maintains a **unidirectional data flow**, which is a best practice in Angular.
+
+---
+
+### 🟡 `@Input()` – Passing Data from Parent to Child
+
+Used to bind a property in the **child component** that gets its value from the **parent**.
+
+```ts
+// child.component.ts
+import { Component, Input } from "@angular/core";
+
+@Component({
+  selector: "app-child",
+  template: `<p>Welcome, {{ name }}!</p>`,
+})
+export class ChildComponent {
+  @Input() name: string = "";
+}
+```
+
+```html
+<!-- parent.component.html -->
+<app-child [name]="'Alice'"></app-child>
+```
+
+---
+
+### 🟡 `@Output()` – Sending Data from Child to Parent
+
+Used with an `EventEmitter` to notify the **parent component** when something happens in the **child**.
+
+```ts
+// child.component.ts
+import { Component, Output, EventEmitter } from "@angular/core";
+
+@Component({
+  selector: "app-child",
+  template: `<button (click)="notify()">Notify Parent</button>`,
+})
+export class ChildComponent {
+  @Output() clicked = new EventEmitter<string>();
+
+  notify() {
+    this.clicked.emit("Button clicked!");
+  }
+}
+```
+
+```html
+<!-- parent.component.html -->
+<app-child (clicked)="handleChildClick($event)"></app-child>
+```
+
+```ts
+// parent.component.ts
+handleChildClick(message: string) {
+  console.log('Child says:', message);
+}
+```
+
+---
+
+### 🔍 Summary Table
+
+| Decorator   | Direction      | Type             | Purpose                             |
+| ----------- | -------------- | ---------------- | ----------------------------------- |
+| `@Input()`  | Parent → Child | Property binding | Receive data into a child component |
+| `@Output()` | Child → Parent | EventEmitter     | Emit events/data to a parent        |
+
+---
+
+### 🎯 Summary for Interviews:
+
+- `@Input()` is used to **accept values** from a parent component.
+- `@Output()` is used to **emit custom events** from child to parent using `EventEmitter`.
+- They help in **modular and maintainable component design**.
+- Promote **unidirectional data flow**, which simplifies debugging and improves performance.
+
+---
+
+<div align="right">
+    <b><a href="#table-of-contents">↥ back to top</a></b>
+</div>
