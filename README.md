@@ -705,3 +705,105 @@ handleChildClick(message: string) {
 <div align="right">
     <b><a href="#table-of-contents">↥ back to top</a></b>
 </div>
+
+## 9. How does Angular detect changes? What is `ChangeDetectionStrategy`?
+
+Angular uses a powerful **change detection mechanism** to keep the UI in sync with the application state. This mechanism runs automatically and ensures that the DOM updates when component data changes.
+
+---
+
+### 🔁 How Angular Detects Changes
+
+Angular uses **Zone.js** to hook into browser events like clicks, input, timeouts, and HTTP responses. When such events occur, Angular triggers the **Change Detection** cycle to update the view.
+
+**Default Process:**
+
+1. Angular runs the component tree from the root.
+2. It checks each component’s template for updated values.
+3. If any value has changed, Angular updates the DOM accordingly.
+
+This happens:
+
+- On user events (e.g., input, click)
+- After API responses
+- Inside `setTimeout()`, `setInterval()`, or Promises
+
+---
+
+### 🧠 What is `ChangeDetectionStrategy`?
+
+Angular provides the `ChangeDetectionStrategy` enum to control **how and when a component should be checked for changes**.
+
+It can be set on a component like this:
+
+```ts
+import { Component, ChangeDetectionStrategy } from "@angular/core";
+
+@Component({
+  selector: "app-profile",
+  templateUrl: "./profile.component.html",
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+export class ProfileComponent {
+  @Input() user!: User;
+}
+```
+
+---
+
+### 🟡 Types of Change Detection Strategies
+
+| Strategy  | Description                                                                                                         |
+| --------- | ------------------------------------------------------------------------------------------------------------------- |
+| `Default` | Angular checks the **entire component tree** every time a change is triggered                                       |
+| `OnPush`  | Angular checks the component **only when its `@Input()` reference changes** or an event occurs within the component |
+
+---
+
+### ✅ When to Use `OnPush`
+
+- Your component uses **immutable objects** or observables.
+- You want to **optimize performance** by skipping unnecessary checks.
+- You are working with **large component trees** or **high-frequency data updates**.
+
+---
+
+### 🔍 Example of `OnPush` Optimization
+
+```ts
+@Component({
+  selector: "app-optimized",
+  template: `{{ user.name }}`,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+export class OptimizedComponent {
+  @Input() user!: { name: string };
+}
+```
+
+If `user` is mutated directly, the view **won't update**:
+
+```ts
+this.user.name = "New Name"; // ❌ won't trigger change detection
+```
+
+Instead, you must **assign a new object**:
+
+```ts
+this.user = { ...this.user, name: "New Name" }; // ✅ triggers change detection
+```
+
+---
+
+### 🎯 Summary for Interviews:
+
+- Angular uses **Zone.js** and its own **change detection mechanism** to update the view automatically.
+- `ChangeDetectionStrategy` helps control how often Angular checks a component for changes.
+- `Default`: checks all components (safe but can be inefficient).
+- `OnPush`: checks only when `@Input()` references change or an internal event occurs (highly efficient for performance).
+
+---
+
+<div align="right">
+    <b><a href="#table-of-contents">↥ back to top</a></b>
+</div>
