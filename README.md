@@ -807,3 +807,108 @@ this.user = { ...this.user, name: "New Name" }; // ✅ triggers change detection
 <div align="right">
     <b><a href="#table-of-contents">↥ back to top</a></b>
 </div>
+
+## 10. How do Angular forms differ: Template-driven vs Reactive Forms?
+
+Angular provides two ways to handle user input through forms:
+
+- **Template-driven Forms** – suitable for simple, declarative forms
+- **Reactive Forms** – suitable for complex, dynamic, and scalable forms
+
+Both approaches are built on the same `FormControl`, `FormGroup`, and `FormArray` classes but differ in how they are implemented.
+
+---
+
+### 🟢 Template-driven Forms
+
+- Defined **in the HTML template**
+- Uses Angular directives like `[(ngModel)]`, `#form="ngForm"`
+- Two-way data binding (`[(ngModel)]`)
+- Minimal TypeScript code
+- Easier to use for simple forms
+
+#### Example:
+
+```html
+<form #userForm="ngForm" (ngSubmit)="onSubmit(userForm.value)">
+  <input name="username" [(ngModel)]="user.username" required />
+  <button type="submit">Submit</button>
+</form>
+```
+
+#### Setup:
+
+Import `FormsModule` in your module.
+
+```ts
+@NgModule({
+  imports: [FormsModule]
+})
+```
+
+---
+
+### 🔵 Reactive Forms
+
+- Defined **programmatically in the component class**
+- Uses `FormControl`, `FormGroup`, `FormBuilder`
+- Provides **more control** over validation and form state
+- Supports **dynamic forms**, nested groups, and custom validation
+- Better suited for **large-scale enterprise apps**
+
+#### Example:
+
+```ts
+form = new FormGroup({
+  username: new FormControl('', Validators.required)
+});
+
+onSubmit() {
+  console.log(this.form.value);
+}
+```
+
+```html
+<form [formGroup]="form" (ngSubmit)="onSubmit()">
+  <input formControlName="username" />
+  <button type="submit">Submit</button>
+</form>
+```
+
+#### Setup:
+
+Import `ReactiveFormsModule` in your module.
+
+```ts
+@NgModule({
+  imports: [ReactiveFormsModule]
+})
+```
+
+---
+
+### 🔍 Comparison Table
+
+| Feature         | Template-driven             | Reactive Forms                   |
+| --------------- | --------------------------- | -------------------------------- |
+| Form setup      | In HTML template            | In TypeScript component class    |
+| Data flow       | Two-way binding (`ngModel`) | Explicit via `FormControl`       |
+| Best suited for | Simple forms                | Complex and dynamic forms        |
+| Validation      | HTML + Angular directives   | Fully programmatic, customizable |
+| Testability     | Harder to test              | Easy to test                     |
+| Dynamic forms   | Difficult                   | Easy and flexible                |
+| Scalability     | Limited                     | High                             |
+
+---
+
+### 🎯 Summary for Interviews:
+
+- **Template-driven forms** are simple, declarative, and great for small forms.
+- **Reactive forms** offer more flexibility, better structure, and are ideal for complex or enterprise-level forms.
+- Choose based on your use case: **simplicity vs control**.
+
+---
+
+<div align="right">
+    <b><a href="#table-of-contents">↥ back to top</a></b>
+</div>
