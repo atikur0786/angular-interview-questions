@@ -1,4 +1,4 @@
-# Angular Interview Questions & Answers – Beginner Level (Conceptual Foundation)
+# Angular Interview Questions & Answers
 
 This open-source guide covers foundational Angular interview questions with clear, concise answers. Great for beginners and as a revision tool before interviews.
 
@@ -16,6 +16,16 @@ This open-source guide covers foundational Angular interview questions with clea
 8. [What is the role of `@Input()` and `@Output()`?](#8-what-is-the-role-of-input-and-output)
 9. [How does Angular detect changes? What is `ChangeDetectionStrategy`?](#9-how-does-angular-detect-changes-what-is-changedetectionstrategy)
 10. [How do Angular forms differ: Template-driven vs Reactive Forms?](#10-how-do-angular-forms-differ-template-driven-vs-reactive-forms)
+11. [What is an observable, and how is it used with HttpClient?](#11-what-is-an-observable-and-how-is-it-used-with-httpclient)
+12. [What is async pipe and how does it simplify observable usage?](#12-what-is-async-pipe-and-how-does-it-simplify-observable-usage)
+13. [How does routing work in Angular? What is RouterModule?](#13-how-does-routing-work-in-angular-what-is-routermodule)
+14. [What are guards in Angular (CanActivate, CanDeactivate)?](#14-what-are-guards-in-angular-canactivate-candeactivate)
+15. [What are resolvers in routing?](#15-what-are-resolvers-in-routing)
+16. [What is lazy loading and how do you implement it?](#16-what-is-lazy-loading-and-how-do-you-implement-it)
+17. [What are pipes? How do you create a custom pipe?](#17-what-are-pipes-how-do-you-create-a-custom-pipe)
+18. [What are directives? Difference between structural and attribute directives.](#18-what-are-directives-difference-between-structural-and-attribute-directives)
+19. [What is a ViewChild / ContentChild? When to use each?](#19-what-is-a-viewchild--contentchild-when-to-use-each)
+20. [How does Angular handle forms validation?](#20-how-does-angular-handle-forms-validation)
 
 ---
 
@@ -906,6 +916,105 @@ Import `ReactiveFormsModule` in your module.
 - **Template-driven forms** are simple, declarative, and great for small forms.
 - **Reactive forms** offer more flexibility, better structure, and are ideal for complex or enterprise-level forms.
 - Choose based on your use case: **simplicity vs control**.
+
+---
+
+<div align="right">
+    <b><a href="#table-of-contents">↥ back to top</a></b>
+</div>
+
+## 11. What is an observable, and how is it used with HttpClient?
+
+In Angular, an **observable** is a key part of **reactive programming** using the **RxJS library**. Observables are used to **handle asynchronous data streams**, such as HTTP requests, user input, or real-time updates.
+
+The **`HttpClient` service** in Angular returns data as observables, making it powerful and flexible for handling API calls.
+
+---
+
+### 🔁 What is an Observable?
+
+An **Observable** is a stream of data that can be observed over time. It supports:
+
+- Asynchronous data flows
+- Operators (e.g., `map`, `filter`, `retry`)
+- Subscriptions and unsubscriptions
+- Emission of multiple values over time
+
+> Think of it like a **promise**, but with **multiple values** and **cancellation support**.
+
+---
+
+### 📡 Using Observables with `HttpClient`
+
+1. Import `HttpClientModule` in your root or feature module:
+
+```ts
+import { HttpClientModule } from "@angular/common/http";
+
+@NgModule({
+  imports: [HttpClientModule],
+})
+export class AppModule {}
+```
+
+2. Inject `HttpClient` into a service or component:
+
+```ts
+import { HttpClient } from "@angular/common/http";
+import { Observable } from "rxjs";
+
+@Injectable({ providedIn: "root" })
+export class UserService {
+  constructor(private http: HttpClient) {}
+
+  getUsers(): Observable<User[]> {
+    return this.http.get<User[]>("https://api.example.com/users");
+  }
+}
+```
+
+3. Subscribe to the observable:
+
+```ts
+export class UserComponent implements OnInit {
+  users: User[] = [];
+
+  constructor(private userService: UserService) {}
+
+  ngOnInit() {
+    this.userService.getUsers().subscribe({
+      next: (data) => (this.users = data),
+      error: (err) => console.error("Error fetching users:", err),
+    });
+  }
+}
+```
+
+---
+
+### 📌 Benefits of Using Observables with HttpClient
+
+| Feature        | Benefit                                     |
+| -------------- | ------------------------------------------- |
+| Stream-based   | Can handle multiple events/data emissions   |
+| Cancelable     | Unsubscribe to avoid memory leaks           |
+| Composable     | Use RxJS operators to transform/filter data |
+| Async handling | Easily integrate with UI lifecycle hooks    |
+
+---
+
+### ⚠️ Important Notes
+
+- Always **unsubscribe** from observables when the component is destroyed (if not using `async` pipe).
+- Consider using **`catchError`**, `retry`, and `finalize` for better error handling and user experience.
+
+---
+
+### 🎯 Summary for Interviews:
+
+- Observables are a core part of Angular’s reactive programming model.
+- `HttpClient` uses observables to return data from HTTP calls.
+- Observables are powerful, composable, and cancelable — making them ideal for **API integration**, **real-time updates**, and **asynchronous workflows** in Angular.
 
 ---
 
