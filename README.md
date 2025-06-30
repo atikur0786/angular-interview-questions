@@ -1021,3 +1021,107 @@ export class UserComponent implements OnInit {
 <div align="right">
     <b><a href="#table-of-contents">↥ back to top</a></b>
 </div>
+
+## 12. What is async pipe and how does it simplify observable usage?
+
+The `async` pipe in Angular is a **built-in pipe** that automatically **subscribes to an observable or a promise**, gets its latest value, and returns it in the template.
+
+It also **automatically unsubscribes** when the component is destroyed, preventing memory leaks.
+
+---
+
+### ✅ Why Use `async` Pipe?
+
+Manually subscribing to observables in a component can lead to:
+
+- Repetitive boilerplate
+- Risk of memory leaks if not unsubscribed
+- Messy lifecycle code
+
+The `async` pipe solves these issues **declaratively** in the template.
+
+---
+
+### 🧪 Example Without `async` Pipe (Manual Subscription)
+
+```ts
+// user.component.ts
+ngOnInit() {
+  this.userService.getUsers().subscribe(users => {
+    this.users = users;
+  });
+}
+```
+
+```html
+<!-- user.component.html -->
+<ul>
+  <li *ngFor="let user of users">{{ user.name }}</li>
+</ul>
+```
+
+---
+
+### ✅ Example With `async` Pipe (Preferred)
+
+```ts
+// user.component.ts
+users$ = this.userService.getUsers(); // Observable
+```
+
+```html
+<!-- user.component.html -->
+<ul>
+  <li *ngFor="let user of users$ | async">{{ user.name }}</li>
+</ul>
+```
+
+- No need to subscribe manually.
+- Angular manages the subscription and unsubscription lifecycle.
+- Cleaner, more readable code.
+
+---
+
+### 🔁 How It Works
+
+The `async` pipe:
+
+1. Subscribes to the observable or promise.
+2. Emits the latest value to the view.
+3. Unsubscribes automatically when the component is destroyed.
+
+Works with:
+
+- `Observable<T>`
+- `Promise<T>`
+
+---
+
+### 📌 When to Use `async` Pipe
+
+- In templates for displaying data from observables (e.g., HTTP data, user input, route params).
+- With `*ngIf`, `*ngFor`, or simple bindings.
+- In combination with `| slice`, `| date`, etc.
+
+---
+
+### 🔍 Best Practices
+
+- Prefer using `async` pipe **directly in the template** to reduce code complexity.
+- Avoid mixing `async` pipe with manual subscriptions on the same observable.
+- For performance, consider `ChangeDetectionStrategy.OnPush` with `async`.
+
+---
+
+### 🎯 Summary for Interviews:
+
+- The `async` pipe automatically **subscribes to and unsubscribes from observables/promises**.
+- Simplifies code and avoids manual memory management.
+- Promotes cleaner, more declarative Angular templates.
+- Great for handling **asynchronous data in templates**.
+
+---
+
+<div align="right">
+    <b><a href="#table-of-contents">↥ back to top</a></b>
+</div>
