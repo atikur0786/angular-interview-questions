@@ -1125,3 +1125,107 @@ Works with:
 <div align="right">
     <b><a href="#table-of-contents">↥ back to top</a></b>
 </div>
+
+## 13. How does routing work in Angular? What is `RouterModule`?
+
+In Angular, **routing** enables **navigation between different views or pages** in a Single Page Application (SPA) without reloading the page. Angular’s router maps **URL paths to components**, handles navigation, and supports route guards, lazy loading, and parameter passing.
+
+The `RouterModule` is the **core module** Angular provides to configure and manage routing.
+
+---
+
+### 🧭 How Angular Routing Works
+
+1. You define routes as an array of objects.
+2. Each route maps a **URL path** to a **component**.
+3. Angular uses the `<router-outlet>` directive to render the component associated with the current route.
+
+---
+
+### 🛠️ Basic Routing Setup
+
+#### 1. Import `RouterModule` in `AppModule`
+
+```ts
+import { NgModule } from "@angular/core";
+import { RouterModule, Routes } from "@angular/router";
+import { HomeComponent } from "./home/home.component";
+import { AboutComponent } from "./about/about.component";
+
+const routes: Routes = [
+  { path: "", component: HomeComponent },
+  { path: "about", component: AboutComponent },
+];
+
+@NgModule({
+  imports: [RouterModule.forRoot(routes)],
+  exports: [RouterModule],
+})
+export class AppRoutingModule {}
+```
+
+#### 2. Use `<router-outlet>` in your AppComponent template
+
+```html
+<!-- app.component.html -->
+<router-outlet></router-outlet>
+```
+
+#### 3. Navigate using `routerLink`
+
+```html
+<a routerLink="/">Home</a> <a routerLink="/about">About</a>
+```
+
+---
+
+### 📦 What is `RouterModule`?
+
+`RouterModule` is an Angular module that:
+
+- Provides router directives like `<router-outlet>`, `routerLink`, and `routerLinkActive`
+- Registers the route configuration (`RouterModule.forRoot(routes)`)
+- Enables navigation and guards
+
+> ✅ It’s the backbone of Angular’s routing system.
+
+---
+
+### 🧩 Advanced Features Supported by Router
+
+| Feature               | Description                                         |
+| --------------------- | --------------------------------------------------- |
+| Route Parameters      | Pass dynamic values via URLs (`/user/:id`)          |
+| Route Guards          | Protect routes using `CanActivate`, `CanDeactivate` |
+| Lazy Loading          | Load feature modules only when needed               |
+| Child Routes          | Nested routing inside components                    |
+| Redirects & Wildcards | Handle default and unknown routes                   |
+| Route Resolvers       | Pre-fetch data before loading a component           |
+
+---
+
+### 🔍 Example with Route Parameter
+
+```ts
+{ path: 'user/:id', component: UserComponent }
+```
+
+```ts
+// In component
+this.route.snapshot.paramMap.get("id");
+```
+
+---
+
+### 🎯 Summary for Interviews:
+
+- Angular routing enables navigation within SPAs using URL-based mapping to components.
+- `RouterModule` provides the infrastructure for routing and navigation.
+- Routing is configured using `RouterModule.forRoot(routes)` for the root module or `forChild()` for feature modules.
+- Features like **guards**, **resolvers**, and **lazy loading** help build complex, performant applications.
+
+---
+
+<div align="right">
+    <b><a href="#table-of-contents">↥ back to top</a></b>
+</div>
