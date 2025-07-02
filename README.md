@@ -1229,3 +1229,136 @@ this.route.snapshot.paramMap.get("id");
 <div align="right">
     <b><a href="#table-of-contents">↥ back to top</a></b>
 </div>
+
+## 14. What are guards in Angular (CanActivate, CanDeactivate)?
+
+In Angular, **route guards** are interfaces that allow you to **control access to routes**. They act like gatekeepers that decide whether a user can enter or leave a route.
+
+Guards are commonly used for:
+
+- **Authentication** and **authorization**
+- **Unsaved changes warnings**
+- **Role-based access control**
+- **Preloading/preventing navigation based on business logic**
+
+---
+
+### 🛡️ Types of Guards
+
+| Guard              | Purpose                                          |
+| ------------------ | ------------------------------------------------ |
+| `CanActivate`      | Checks if a route **can be activated** (entered) |
+| `CanDeactivate`    | Checks if a route **can be deactivated** (left)  |
+| `CanActivateChild` | Checks access to **child routes**                |
+| `CanLoad`          | Prevents loading of **lazy-loaded modules**      |
+| `Resolve`          | Pre-fetches data before route activation         |
+
+This section focuses on the two most commonly used:
+
+---
+
+### 🔐 `CanActivate` – Protect Route Entry
+
+Used to **prevent access** to a route unless certain conditions are met (e.g., the user is logged in).
+
+#### ✅ Example
+
+```ts
+@Injectable({ providedIn: "root" })
+export class AuthGuard implements CanActivate {
+  constructor(private authService: AuthService, private router: Router) {}
+
+  canActivate(): boolean {
+    if (this.authService.isLoggedIn()) {
+      return true;
+    } else {
+      this.router.navigate(["/login"]);
+      return false;
+    }
+  }
+}
+```
+
+```ts
+// app-routing.module.ts
+{
+  path: 'dashboard',
+  component: DashboardComponent,
+  canActivate: [AuthGuard]
+}
+```
+
+---
+
+### 🔄 `CanDeactivate` – Prevent Route Exit
+
+Used to **warn or block users** from leaving a route if certain conditions are not met (e.g., unsaved form data).
+
+#### ✅ Example
+
+```ts
+export interface CanComponentDeactivate {
+  canDeactivate: () => boolean | Observable<boolean>;
+}
+
+@Injectable({ providedIn: "root" })
+export class UnsavedChangesGuard
+  implements CanDeactivate<CanComponentDeactivate>
+{
+  canDeactivate(component: CanComponentDeactivate): boolean {
+    return component.canDeactivate ? component.canDeactivate() : true;
+  }
+}
+```
+
+```ts
+// component.ts
+export class FormComponent implements CanComponentDeactivate {
+  hasUnsavedChanges = true;
+
+  canDeactivate(): boolean {
+    return (
+      !this.hasUnsavedChanges ||
+      confirm("You have unsaved changes. Leave anyway?")
+    );
+  }
+}
+```
+
+```ts
+// app-routing.module.ts
+{
+  path: 'form',
+  component: FormComponent,
+  canDeactivate: [UnsavedChangesGuard]
+}
+```
+
+---
+
+### 🧠 How Guards Work
+
+- Guards return:
+
+  - `true` or `false`
+  - A `UrlTree` (to redirect)
+  - An `Observable<boolean | UrlTree>`
+  - A `Promise<boolean | UrlTree>`
+
+> Angular **waits** for the guard to resolve before activating/deactivating the route.
+
+---
+
+### 🎯 Summary for Interviews:
+
+- **Guards** in Angular allow you to **intercept route navigation**.
+- `CanActivate`: checks **before entering** a route.
+- `CanDeactivate`: checks **before leaving** a route.
+- Useful for authentication, preventing data loss, role-based access, etc.
+- Guards improve **app security**, **user experience**, and **navigation control**.
+
+---
+
+<div align="right">
+    <b><a href="#table-of-contents">↥ back to top</a></b>
+</div>
