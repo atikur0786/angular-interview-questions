@@ -1362,3 +1362,112 @@ export class FormComponent implements CanComponentDeactivate {
 <div align="right">
     <b><a href="#table-of-contents">↥ back to top</a></b>
 </div>
+
+## 15. What are resolvers in routing?
+
+In Angular, a **resolver** is a service that implements the `Resolve<T>` interface and is used to **fetch data before a route is activated**.
+
+Resolvers are useful when:
+
+- You want a route’s component to load **only after required data is ready**
+- You want to **avoid loading spinners** inside components
+- You want to **fetch data in advance** so the component template can render immediately
+
+---
+
+### 🧠 How Does a Resolver Work?
+
+When you assign a resolver to a route:
+
+1. Angular runs the resolver **before** activating the route.
+2. The route is **paused** until the resolver finishes.
+3. The resolved data is injected into the component via the **`ActivatedRoute`**.
+
+---
+
+### ✅ Step-by-Step Example
+
+#### 1. Create a Resolver Service
+
+```ts
+import { Injectable } from "@angular/core";
+import { Resolve } from "@angular/router";
+import { Observable } from "rxjs";
+import { UserService } from "./user.service";
+import { User } from "./user.model";
+
+@Injectable({ providedIn: "root" })
+export class UserResolver implements Resolve<User[]> {
+  constructor(private userService: UserService) {}
+
+  resolve(): Observable<User[]> {
+    return this.userService.getUsers(); // API call
+  }
+}
+```
+
+#### 2. Add Resolver to Route
+
+```ts
+// app-routing.module.ts
+{
+  path: 'users',
+  component: UserListComponent,
+  resolve: { usersData: UserResolver }
+}
+```
+
+#### 3. Access Resolved Data in Component
+
+```ts
+import { ActivatedRoute } from "@angular/router";
+
+export class UserListComponent implements OnInit {
+  users: User[] = [];
+
+  constructor(private route: ActivatedRoute) {}
+
+  ngOnInit() {
+    this.users = this.route.snapshot.data["usersData"];
+  }
+}
+```
+
+---
+
+### 🧪 Resolver Return Types
+
+Resolvers can return:
+
+- **Observable<T>**
+- **Promise<T>**
+- **Synchronous value** (`T`)
+
+If the resolver fails, the route **won’t activate**, and you can handle it using error pages or redirects.
+
+---
+
+### 📦 Benefits of Using Resolvers
+
+| Benefit                    | Description                                           |
+| -------------------------- | ----------------------------------------------------- |
+| Pre-fetch data             | Load data before component loads                      |
+| Cleaner components         | No need to handle loading states inside the component |
+| Centralized error handling | Easier to manage fetch failures with route redirects  |
+| Seamless user experience   | Avoids flickering or "empty screen" states            |
+
+---
+
+### 🎯 Summary for Interviews:
+
+- A **resolver** fetches data **before the route activates**.
+- Implement the `Resolve<T>` interface and use the `resolve()` method.
+- Attach the resolver in route config under the `resolve` property.
+- Access resolved data using `ActivatedRoute.snapshot.data`.
+- Ideal for **preloading data**, **cleaner UX**, and **maintainable components**.
+
+---
+
+<div align="right">
+    <b><a href="#table-of-contents">↥ back to top</a></b>
+</div>
