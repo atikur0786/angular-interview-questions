@@ -1471,3 +1471,107 @@ If the resolver fails, the route **won’t activate**, and you can handle it usi
 <div align="right">
     <b><a href="#table-of-contents">↥ back to top</a></b>
 </div>
+
+## 16. What is lazy loading and how do you implement it?
+
+**Lazy loading** in Angular is a design pattern that **loads feature modules only when needed**, rather than at the initial load of the application.
+
+This helps improve:
+
+- **Initial load performance**
+- **Scalability** of large applications
+- **Separation of concerns** between app features
+
+---
+
+### 🚀 Why Use Lazy Loading?
+
+By default, Angular **eagerly loads** all modules when the app starts. In large applications, this increases:
+
+- Initial bundle size
+- Time to interactive (TTI)
+- Unused resources being loaded
+
+With **lazy loading**, you load only what’s required for the current route.
+
+---
+
+### 📦 How to Implement Lazy Loading
+
+#### 🛠️ 1. Create a Feature Module
+
+```bash
+ng generate module admin --route admin --module app.module
+```
+
+This command sets up lazy loading automatically (since Angular v9+ with Ivy).
+
+If doing manually:
+
+```bash
+ng generate module admin
+ng generate component admin/dashboard
+```
+
+#### 🗺️ 2. Define Routes in the Feature Module
+
+```ts
+// admin-routing.module.ts
+const routes: Routes = [{ path: "", component: DashboardComponent }];
+
+@NgModule({
+  imports: [RouterModule.forChild(routes)],
+  exports: [RouterModule],
+})
+export class AdminRoutingModule {}
+```
+
+#### 🧩 3. Register Lazy Route in App Routing
+
+```ts
+// app-routing.module.ts
+const routes: Routes = [
+  {
+    path: "admin",
+    loadChildren: () =>
+      import("./admin/admin.module").then((m) => m.AdminModule),
+  },
+];
+```
+
+- The module and its components are **only loaded when the route `/admin` is visited**.
+
+---
+
+### 🧠 Key Notes
+
+- Lazy loading works with `loadChildren` and **dynamic imports**.
+- Use **`forChild()`** for feature routing (vs `forRoot()` for root module).
+- Ensure that the feature module exports its components & routing.
+- Guards and resolvers work the same in lazy-loaded routes.
+
+---
+
+### ✅ Eager vs Lazy Loading Comparison
+
+| Feature          | Eager Loading               | Lazy Loading                               |
+| ---------------- | --------------------------- | ------------------------------------------ |
+| Load time        | Entire app loads at startup | Loads only required modules on demand      |
+| Performance      | Slower initial load         | Faster startup, slower on first route load |
+| Setup complexity | Easy (default)              | Requires modular setup                     |
+| Use case         | Small apps                  | Large apps with multiple features          |
+
+---
+
+### 🎯 Summary for Interviews:
+
+- **Lazy loading** loads feature modules **on-demand**, improving performance.
+- Implemented using `loadChildren` with dynamic import in the routing module.
+- Reduces initial bundle size and speeds up page load.
+- Best used in large-scale applications with multiple routes and features.
+
+---
+
+<div align="right">
+    <b><a href="#table-of-contents">↥ back to top</a></b>
+</div>
