@@ -1575,3 +1575,99 @@ const routes: Routes = [
 <div align="right">
     <b><a href="#table-of-contents">↥ back to top</a></b>
 </div>
+
+## 17. What are pipes? How do you create a custom pipe?
+
+In Angular, **pipes** are used to **transform data directly in the template**. Pipes take in a value, process it, and return a transformed value without modifying the original data.
+
+They are commonly used for:
+
+- Formatting strings, numbers, and dates
+- Filtering and transforming arrays
+- Creating custom display logic directly in the HTML
+
+---
+
+### 🛠️ Built-in Pipes Examples
+
+Angular includes several **built-in pipes**:
+
+| Pipe        | Usage Example | Output              |                           |
+| ----------- | ------------- | ------------------- | ------------------------- |
+| `date`      | \`{{ today    | date:'short' }}\`   | e.g., `6/18/25, 11:30 PM` |
+| `uppercase` | \`{{ name     | uppercase }}\`      | `JOHN DOE`                |
+| `currency`  | \`{{ price    | currency:'INR' }}\` | `₹1,000.00`               |
+| `json`      | \`{{ object   | json }}\`           | Pretty JSON string        |
+| `slice`     | \`{{ list     | slice:0:3 }}\`      | First 3 items of the list |
+
+---
+
+### ✅ Creating a Custom Pipe
+
+You can create a custom pipe using the `@Pipe()` decorator and implementing the `PipeTransform` interface.
+
+#### 🧪 Example: `capitalize` Pipe
+
+```ts
+import { Pipe, PipeTransform } from "@angular/core";
+
+@Pipe({
+  name: "capitalize",
+})
+export class CapitalizePipe implements PipeTransform {
+  transform(value: string): string {
+    if (!value) return "";
+    return value.charAt(0).toUpperCase() + value.slice(1).toLowerCase();
+  }
+}
+```
+
+#### 🧩 Using the Custom Pipe in HTML
+
+```html
+<p>{{ 'angular' | capitalize }}</p>
+<!-- Output: Angular -->
+```
+
+#### 🧾 Register Pipe in a Module
+
+```ts
+@NgModule({
+  declarations: [CapitalizePipe],
+  exports: [CapitalizePipe],
+})
+export class SharedModule {}
+```
+
+---
+
+### 🧠 Key Points About Pipes
+
+- Pipes are **pure by default**, meaning they're only re-evaluated when the input changes.
+- You can make a pipe **impure** by setting `pure: false` in the decorator, but this has performance costs.
+- Pipes are **declarative**, making templates cleaner and logic reusable.
+
+---
+
+### 📦 When to Use Pipes
+
+| Use Case             | Example                               |
+| -------------------- | ------------------------------------- |
+| Display formatting   | Dates, currency, uppercase/lowercase  |
+| List transformation  | Slicing/filtering arrays in templates |
+| Custom display logic | Converting roles, statuses, units     |
+
+---
+
+### 🎯 Summary for Interviews:
+
+- **Pipes** transform data in templates without changing the original value.
+- Angular provides **built-in pipes**, and you can create **custom pipes** using `@Pipe` and `PipeTransform`.
+- Pipes improve **template readability** and **reuse formatting logic**.
+- Use pipes for **formatting**, **filtering**, and **custom display transformations**.
+
+---
+
+<div align="right">
+    <b><a href="#table-of-contents">↥ back to top</a></b>
+</div>
