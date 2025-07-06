@@ -1671,3 +1671,126 @@ export class SharedModule {}
 <div align="right">
     <b><a href="#table-of-contents">↥ back to top</a></b>
 </div>
+
+## 18. What are directives? Difference between structural and attribute directives.
+
+In Angular, a **directive** is a class with a `@Directive()` decorator that allows you to **attach behavior to elements in the DOM**.
+
+Directives are one of Angular’s core building blocks and are used to:
+
+- **Manipulate the DOM**
+- **Change appearance, behavior, or layout**
+- **Extend HTML with custom logic**
+
+---
+
+### 🛠️ Types of Directives in Angular
+
+Angular has **three types** of directives:
+
+| Type                     | Purpose                                      | Example              |
+| ------------------------ | -------------------------------------------- | -------------------- |
+| **Component**            | A directive with a template                  | `@Component({...})`  |
+| **Structural Directive** | Adds/removes elements from the DOM           | `*ngIf`, `*ngFor`    |
+| **Attribute Directive**  | Changes appearance or behavior of an element | `ngClass`, `ngStyle` |
+
+---
+
+### 🧱 Structural Directives
+
+Structural directives are used to **change the layout of the DOM** by adding, removing, or replacing elements.
+
+> Identified with an asterisk `*` syntax.
+
+#### Examples:
+
+```html
+<!-- *ngIf: conditionally adds element -->
+<div *ngIf="isLoggedIn">Welcome!</div>
+
+<!-- *ngFor: loops over a list -->
+<li *ngFor="let user of users">{{ user.name }}</li>
+```
+
+#### Custom Structural Directive (Example):
+
+```ts
+@Directive({
+  selector: "[appIfNot]",
+})
+export class IfNotDirective {
+  constructor(
+    private tpl: TemplateRef<any>,
+    private viewContainer: ViewContainerRef
+  ) {}
+
+  @Input() set appIfNot(condition: boolean) {
+    if (!condition) {
+      this.viewContainer.createEmbeddedView(this.tpl);
+    } else {
+      this.viewContainer.clear();
+    }
+  }
+}
+```
+
+---
+
+### 🎨 Attribute Directives
+
+Attribute directives are used to **change the appearance or behavior** of an existing element/component.
+
+> They work by **modifying element attributes**, styles, or classes.
+
+#### Examples:
+
+```html
+<!-- ngStyle: sets inline styles -->
+<div [ngStyle]="{color: 'blue'}">Styled Text</div>
+
+<!-- ngClass: toggles CSS classes -->
+<p [ngClass]="{ active: isActive }">Highlight me</p>
+```
+
+#### Custom Attribute Directive (Example):
+
+```ts
+@Directive({
+  selector: "[appHighlight]",
+})
+export class HighlightDirective {
+  constructor(private el: ElementRef) {
+    el.nativeElement.style.backgroundColor = "yellow";
+  }
+}
+```
+
+```html
+<p appHighlight>This text is highlighted</p>
+```
+
+---
+
+### 📌 Comparison Table
+
+| Feature             | Structural Directive            | Attribute Directive                   |
+| ------------------- | ------------------------------- | ------------------------------------- |
+| Affects DOM layout? | Yes (adds/removes DOM elements) | No (modifies existing elements only)  |
+| Common usage        | `*ngIf`, `*ngFor`, `*ngSwitch`  | `ngClass`, `ngStyle`, custom behavior |
+| Syntax indicator    | Uses `*` prefix                 | Uses property binding or plain attr   |
+| Purpose             | Template control                | Styling or behavior control           |
+
+---
+
+### 🎯 Summary for Interviews:
+
+- Angular **directives** add behavior to DOM elements.
+- **Structural directives** (e.g., `*ngIf`, `*ngFor`) change the DOM structure.
+- **Attribute directives** (e.g., `ngClass`, `ngStyle`) change the DOM appearance or behavior.
+- You can create **custom directives** to encapsulate reusable logic or styles.
+
+---
+
+<div align="right">
+    <b><a href="#table-of-contents">↥ back to top</a></b>
+</div>
