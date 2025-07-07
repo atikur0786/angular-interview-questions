@@ -1794,3 +1794,108 @@ export class HighlightDirective {
 <div align="right">
     <b><a href="#table-of-contents">↥ back to top</a></b>
 </div>
+
+## 19. What is a `ViewChild` / `ContentChild`? When to use each?
+
+Angular provides decorators like `@ViewChild()` and `@ContentChild()` to **access DOM elements, directives, or components** from the class.
+
+They are used to get a **reference to a child element**, component, or directive in the **template or projected content**, allowing interaction directly from the component class.
+
+---
+
+### 🔍 What is `@ViewChild`?
+
+`@ViewChild()` is used to **access an element, directive, or child component** that is **declared in the same template** as the component.
+
+#### ✅ Example: Accessing a DOM Element
+
+```html
+<!-- app.component.html -->
+<input #inputBox type="text" />
+```
+
+```ts
+@ViewChild('inputBox') inputRef!: ElementRef;
+
+ngAfterViewInit() {
+  this.inputRef.nativeElement.focus();
+}
+```
+
+#### ✅ Example: Accessing a Child Component
+
+```html
+<app-child #childRef></app-child>
+```
+
+```ts
+@ViewChild('childRef') child!: ChildComponent;
+
+ngAfterViewInit() {
+  this.child.doSomething();
+}
+```
+
+---
+
+### 🔍 What is `@ContentChild`?
+
+`@ContentChild()` is used to access content that is **projected into a component using `<ng-content>`**.
+
+#### ✅ Example:
+
+```ts
+// parent.component.html
+<app-wrapper>
+  <p #projectedContent>Hello from parent</p>
+</app-wrapper>
+```
+
+```html
+<!-- wrapper.component.html -->
+<ng-content></ng-content>
+```
+
+```ts
+@ContentChild('projectedContent') content!: ElementRef;
+
+ngAfterContentInit() {
+  console.log(this.content.nativeElement.textContent);
+}
+```
+
+---
+
+### 🧠 When to Use Each
+
+| Decorator         | Used For                                       | Lifecycle Hook         |
+| ----------------- | ---------------------------------------------- | ---------------------- |
+| `@ViewChild()`    | Accessing elements/components in own template  | `ngAfterViewInit()`    |
+| `@ContentChild()` | Accessing content projected via `<ng-content>` | `ngAfterContentInit()` |
+
+---
+
+### 📌 Additional Tips
+
+- Use `static: true` if you need access before `ngAfterViewInit()`.
+  Example: `@ViewChild('el', { static: true })`
+
+- You can also use:
+
+  - `@ViewChildren()` to get a list of multiple elements in the view
+  - `@ContentChildren()` to get multiple projected content items
+
+---
+
+### 🎯 Summary for Interviews:
+
+- `@ViewChild()` is used for accessing elements or components **declared in the template**.
+- `@ContentChild()` is used for accessing **projected content** inside `<ng-content>`.
+- Choose based on where the child lives: inside the template → `ViewChild`; projected via `ng-content` → `ContentChild`.
+- Use inside `ngAfterViewInit()` or `ngAfterContentInit()` lifecycle hooks.
+
+---
+
+<div align="right">
+    <b><a href="#table-of-contents">↥ back to top</a></b>
+</div>
