@@ -1899,3 +1899,131 @@ ngAfterContentInit() {
 <div align="right">
     <b><a href="#table-of-contents">↥ back to top</a></b>
 </div>
+
+## 20. How does Angular handle forms validation?
+
+Angular provides a **powerful and flexible validation system** for both **template-driven** and **reactive forms**, allowing developers to ensure form input correctness using built-in, custom, and asynchronous validators.
+
+---
+
+### 🧾 Validation Types in Angular
+
+| Type             | Works In            | Description                                              |
+| ---------------- | ------------------- | -------------------------------------------------------- |
+| **Built-in**     | Template + Reactive | Predefined validators like `required`, `minLength`, etc. |
+| **Custom**       | Template + Reactive | User-defined validation logic                            |
+| **Asynchronous** | Reactive            | Validates data with server/API responses                 |
+
+---
+
+### ✅ Built-in Validators
+
+#### 🧪 Template-driven Example
+
+```html
+<form #form="ngForm">
+  <input name="email" ngModel required email />
+  <div *ngIf="form.controls.email?.errors?.required">Email is required</div>
+</form>
+```
+
+#### 🧪 Reactive Example
+
+```ts
+form = new FormGroup({
+  email: new FormControl("", [Validators.required, Validators.email]),
+});
+```
+
+```html
+<input formControlName="email" />
+<div *ngIf="form.get('email')?.errors?.email">Invalid email address</div>
+```
+
+---
+
+### 🧑‍💻 Creating a Custom Validator
+
+#### ✅ Sync Validator (e.g., no special characters)
+
+```ts
+function noSpecialChars(control: AbstractControl): ValidationErrors | null {
+  const valid = /^[A-Za-z0-9]*$/.test(control.value);
+  return valid ? null : { specialChars: true };
+}
+```
+
+```ts
+form = new FormGroup({
+  username: new FormControl("", [noSpecialChars]),
+});
+```
+
+---
+
+### 🌐 Async Validator Example
+
+Useful for things like **checking username availability**:
+
+```ts
+function usernameAvailable(http: HttpClient): AsyncValidatorFn {
+  return (control: AbstractControl): Observable<ValidationErrors | null> => {
+    return http
+      .get(`/api/check-username/${control.value}`)
+      .pipe(map((res) => (res["available"] ? null : { usernameTaken: true })));
+  };
+}
+```
+
+---
+
+### 🔍 Accessing Validation State
+
+| Property                | Meaning                      |
+| ----------------------- | ---------------------------- |
+| `valid` / `invalid`     | Overall field validity       |
+| `touched` / `untouched` | Has the user interacted?     |
+| `dirty` / `pristine`    | Has the field been modified? |
+| `errors`                | List of validation errors    |
+
+```ts
+form.get("email")?.errors;
+form.get("email")?.valid;
+```
+
+---
+
+### 📦 Error Display Best Practices
+
+```html
+<div *ngIf="form.get('email')?.touched && form.get('email')?.invalid">
+  <small *ngIf="form.get('email')?.errors?.required">Email is required</small>
+  <small *ngIf="form.get('email')?.errors?.email">Invalid email</small>
+</div>
+```
+
+---
+
+### ✅ Validation Summary: Template vs Reactive
+
+| Feature                 | Template-driven           | Reactive Forms               |
+| ----------------------- | ------------------------- | ---------------------------- |
+| Validators setup        | HTML with directives      | TypeScript with `Validators` |
+| Validation state access | Via form references       | Via form control objects     |
+| Custom validators       | Supported (less flexible) | Fully supported and flexible |
+
+---
+
+### 🎯 Summary for Interviews:
+
+- Angular supports **built-in, custom, and async validators** in both form types.
+- **Template-driven** forms use HTML-based validation directives.
+- **Reactive forms** use class-based control objects and offer better scalability and testability.
+- Use `errors`, `valid`, `dirty`, and `touched` properties to manage validation UX.
+- Custom and async validators allow integration with complex logic and APIs.
+
+---
+
+<div align="right">
+    <b><a href="#table-of-contents">↥ back to top</a></b>
+</div>
