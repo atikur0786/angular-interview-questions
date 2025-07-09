@@ -26,6 +26,16 @@ This open-source guide covers foundational Angular interview questions with clea
 18. [What are directives? Difference between structural and attribute directives.](#18-what-are-directives-difference-between-structural-and-attribute-directives)
 19. [What is a ViewChild / ContentChild? When to use each?](#19-what-is-a-viewchild--contentchild-when-to-use-each)
 20. [How does Angular handle forms validation?](#20-how-does-angular-handle-forms-validation)
+21. [Explain the role and lifecycle of Angular Interceptors.](#21-explain-the-role-and-lifecycle-of-angular-interceptors)
+22. [How does Angular handle dependency injection under the hood?](#22-how-does-angular-handle-dependency-injection-under-the-hood)
+23. [What is a module federation / micro frontend architecture in Angular?](#23-what-is-a-module-federation--micro-frontend-architecture-in-angular)
+24. [How do you optimize performance in Angular apps?](#24-how-do-you-optimize-performance-in-angular-apps)
+25. [What are pure and impure pipes? How do they affect performance?](#25-what-are-pure-and-impure-pipes-how-do-they-affect-performance)
+26. [Explain `ngZone` and `zone.js` – how do they relate to change detection?](#26-explain-ngzone-and-zonejs--how-do-they-relate-to-change-detection)
+27. [What is `Renderer2` and why would you use it instead of direct DOM manipulation?](#27-what-is-renderer2-and-why-would-you-use-it-instead-of-direct-dom-manipulation)
+28. [How do you unit test components, services, and interceptors?](#28-how-do-you-unit-test-components-services-and-interceptors)
+29. [What is a dynamic component and how do you load one at runtime?](#29-what-is-a-dynamic-component-and-how-do-you-load-one-at-runtime)
+30. [Explain the Angular compilation process: AoT vs JIT.](#30-explain-the-angular-compilation-process-aot-vs-jit)
 
 ---
 
@@ -1266,7 +1276,10 @@ Used to **prevent access** to a route unless certain conditions are met (e.g., t
 ```ts
 @Injectable({ providedIn: "root" })
 export class AuthGuard implements CanActivate {
-  constructor(private authService: AuthService, private router: Router) {}
+  constructor(
+    private authService: AuthService,
+    private router: Router
+  ) {}
 
   canActivate(): boolean {
     if (this.authService.isLoggedIn()) {
@@ -1339,7 +1352,6 @@ export class FormComponent implements CanComponentDeactivate {
 ### 🧠 How Guards Work
 
 - Guards return:
-
   - `true` or `false`
   - A `UrlTree` (to redirect)
   - An `Observable<boolean | UrlTree>`
@@ -1881,7 +1893,6 @@ ngAfterContentInit() {
   Example: `@ViewChild('el', { static: true })`
 
 - You can also use:
-
   - `@ViewChildren()` to get a list of multiple elements in the view
   - `@ContentChildren()` to get multiple projected content items
 
@@ -2021,6 +2032,116 @@ form.get("email")?.valid;
 - **Reactive forms** use class-based control objects and offer better scalability and testability.
 - Use `errors`, `valid`, `dirty`, and `touched` properties to manage validation UX.
 - Custom and async validators allow integration with complex logic and APIs.
+
+---
+
+<div align="right">
+    <b><a href="#table-of-contents">↥ back to top</a></b>
+</div>
+
+## 21. Explain the role and lifecycle of Angular Interceptors
+
+In Angular, **interceptors** are part of the **HTTPClient module** and allow you to intercept and modify **outgoing HTTP requests** and **incoming HTTP responses** globally across the app.
+
+They are ideal for implementing cross-cutting concerns like:
+
+- Authentication (e.g., adding auth tokens)
+- Logging
+- Error handling
+- Request transformation
+- Caching
+
+---
+
+### 🧠 What is an Interceptor?
+
+An **interceptor** is a service class that implements the `HttpInterceptor` interface. It provides an `intercept()` method that intercepts every HTTP request made using `HttpClient`.
+
+```ts
+intercept(
+  req: HttpRequest<any>,
+  next: HttpHandler
+): Observable<HttpEvent<any>>
+```
+
+---
+
+### ✅ Interceptor Example: Add Auth Token
+
+```ts
+@Injectable()
+export class AuthInterceptor implements HttpInterceptor {
+  intercept(
+    req: HttpRequest<any>,
+    next: HttpHandler
+  ): Observable<HttpEvent<any>> {
+    const token = localStorage.getItem("auth_token");
+    const authReq = req.clone({
+      setHeaders: { Authorization: `Bearer ${token}` },
+    });
+    return next.handle(authReq);
+  }
+}
+```
+
+---
+
+### 🧾 Registering an Interceptor
+
+You must register the interceptor using the `HTTP_INTERCEPTORS` token with `multi: true`.
+
+```ts
+@NgModule({
+  providers: [
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: AuthInterceptor,
+      multi: true,
+    },
+  ],
+})
+export class AppModule {}
+```
+
+✅ You can register **multiple interceptors**, and Angular will chain them in the order they are provided.
+
+---
+
+### 🔁 Interceptor Lifecycle
+
+1. Request is initiated via `HttpClient`
+2. Request passes through all registered interceptors
+3. Each interceptor can:
+   - **Modify** the request (e.g., add headers)
+   - **Cancel** the request
+   - **Forward** it to the next handler
+
+4. The HTTP response passes **back through the interceptors** in reverse order
+5. Each interceptor can:
+   - **Modify** the response
+   - **Handle errors** (e.g., retry logic, redirection)
+
+---
+
+### 🧪 Common Use Cases
+
+| Use Case               | What You Do in Interceptor                  |
+| ---------------------- | ------------------------------------------- |
+| Add auth token         | Modify request headers                      |
+| Show/hide loader       | Trigger loader on request start/stop        |
+| Central error handling | Catch errors and handle 401s, 500s globally |
+| Modify responses       | Parse or sanitize response data             |
+| Retry failed requests  | Use RxJS `retry()` or `catchError()`        |
+
+---
+
+### 🎯 Summary for Interviews
+
+- Angular **interceptors** intercept all HTTP requests/responses made via `HttpClient`.
+- Implemented using `HttpInterceptor` interface and registered with `HTTP_INTERCEPTORS`.
+- Perfect for **auth, logging, transformation, and error handling**.
+- Requests pass through interceptors in **forward order**, responses in **reverse**.
+- Use `req.clone()` to avoid mutating original requests (immutability principle).
 
 ---
 
