@@ -2148,3 +2148,125 @@ export class AppModule {}
 <div align="right">
     <b><a href="#table-of-contents">↥ back to top</a></b>
 </div>
+
+## 22. How does Angular handle dependency injection under the hood?
+
+Angular uses a **Hierarchical Dependency Injection (DI) system** to efficiently manage how services and other dependencies are created, shared, and injected across the app.
+
+Dependency Injection in Angular:
+
+- Promotes **loose coupling** between components and services
+- Enables **testability**, **reusability**, and **separation of concerns**
+
+---
+
+### 🧠 What is Dependency Injection (DI)?
+
+Dependency Injection is a **design pattern** where an object (like a component) receives its dependencies (like services) from an external source **rather than creating them internally**.
+
+Instead of:
+
+```ts
+this.authService = new AuthService();
+```
+
+Angular does:
+
+```ts
+constructor(private authService: AuthService) {}
+```
+
+---
+
+### 🔧 How Angular DI Works Internally
+
+Angular uses **injectors** to manage and resolve dependencies:
+
+#### 1. **Providers** Register Dependencies
+
+Services are registered using:
+
+- `@Injectable({ providedIn: 'root' })`
+- `providers: [ServiceName]` in components/modules
+
+#### 2. **Injector Tree** is Created
+
+Angular builds a **tree of injectors** at runtime:
+
+- **Root Injector**: created by Angular when app starts
+- **Child Injectors**: created per component/module if local providers are defined
+
+#### 3. **Dependency Resolution**
+
+When Angular needs to inject a service:
+
+1. It checks the current injector
+2. If not found, it moves up the hierarchy (component → module → root)
+3. If not found anywhere, it throws an error
+
+---
+
+### 🧱 Types of Providers
+
+| Type          | Description                             |
+| ------------- | --------------------------------------- |
+| **Root**      | Singleton service shared across the app |
+| **Module**    | Available only within that module       |
+| **Component** | New instance for each component         |
+
+---
+
+### 🔍 Example
+
+```ts
+@Injectable({ providedIn: "root" })
+export class AuthService {}
+
+@Component({
+  selector: "app-login",
+  templateUrl: "./login.component.html",
+})
+export class LoginComponent {
+  constructor(private authService: AuthService) {}
+}
+```
+
+- `AuthService` is registered in the root injector
+- Angular injects the singleton instance into `LoginComponent`
+
+---
+
+### ⚙️ DI Resolution in Lifecycle
+
+- **During app bootstrap**, Angular parses constructors looking for dependencies
+- The `Injector` class resolves and caches instances for reuse
+- Services are instantiated **only once** per injector scope
+
+---
+
+### 🧪 Advanced: `@Inject()`, `@Optional()`, `@Self()`, `@SkipSelf()`
+
+Angular gives fine-grained control over injection:
+
+| Decorator     | Purpose                               |
+| ------------- | ------------------------------------- |
+| `@Inject()`   | Inject by token instead of type       |
+| `@Optional()` | Inject if available, else pass `null` |
+| `@Self()`     | Look only in current injector         |
+| `@SkipSelf()` | Skip current injector, look in parent |
+
+---
+
+### 🎯 Summary for Interviews:
+
+- Angular uses a **hierarchical injector system** to manage dependency lifecycles.
+- Dependencies are resolved **via constructor injection** at runtime.
+- Providers can be registered at **root, module, or component level**.
+- Angular checks the **injector hierarchy** to resolve dependencies.
+- You can fine-tune DI behavior using decorators like `@Inject`, `@Optional`, `@Self`, etc.
+
+---
+
+<div align="right">
+    <b><a href="#table-of-contents">↥ back to top</a></b>
+</div>
