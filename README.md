@@ -2270,3 +2270,123 @@ Angular gives fine-grained control over injection:
 <div align="right">
     <b><a href="#table-of-contents">↥ back to top</a></b>
 </div>
+
+## 23. What is a module federation / micro frontend architecture in Angular?
+
+**Micro frontend architecture** is an architectural pattern where a frontend application is **split into smaller, independently developed and deployed apps** (called micro frontends), similar to microservices on the backend.
+
+**Module Federation**, introduced in **Webpack 5**, is the key enabler that allows Angular apps to implement micro frontends efficiently.
+
+---
+
+### 🧠 What Is Micro Frontend Architecture?
+
+Micro frontends let teams:
+
+- Build separate features/apps in **isolation**
+- Use **independent deployments**
+- Maintain **autonomous codebases**
+- Integrate them into a **shell or host app** dynamically at runtime
+
+> "Each team owns a part of the UI, end-to-end."
+
+---
+
+### 🧩 What Is Module Federation?
+
+**Module Federation** is a Webpack 5 feature that enables:
+
+- Sharing code across multiple applications **at runtime**
+- Loading **remote components/modules** on demand
+- Reducing duplication between micro frontends (shared libraries)
+
+---
+
+### 🔗 Host vs Remote Applications
+
+| Role       | Responsibility                            |
+| ---------- | ----------------------------------------- |
+| **Host**   | The main container app that loads others  |
+| **Remote** | Feature module/app exposed to be consumed |
+
+---
+
+### ✅ Use Case Example
+
+- `host-app` → Main shell
+- `user-app` → Remote exposed app for user management
+- `admin-app` → Remote exposed admin panel
+
+---
+
+### 🛠️ Setting Up Module Federation in Angular
+
+1. **Use Angular CLI with Webpack 5**
+   - Angular v13+ supports custom builders like [@angular-architects/module-federation](https://www.npmjs.com/package/@angular-architects/module-federation)
+
+2. **Install the Plugin**
+
+```bash
+ng add @angular-architects/module-federation --project host-app
+```
+
+3. **Expose Remote Module**
+
+```js
+// user-app/webpack.config.js
+exposes: {
+  './UserModule': './src/app/user/user.module.ts'
+}
+```
+
+4. **Consume in Host App**
+
+```ts
+// app.routes.ts in host-app
+{
+  path: 'user',
+  loadChildren: () =>
+    loadRemoteModule({
+      type: 'module',
+      remoteEntry: 'http://localhost:4201/remoteEntry.js',
+      exposedModule: './UserModule'
+    }).then(m => m.UserModule)
+}
+```
+
+---
+
+### 📦 Benefits of Micro Frontends + Module Federation
+
+| Benefit                 | Description                                  |
+| ----------------------- | -------------------------------------------- |
+| Independent deployments | Teams deploy features without waiting        |
+| Code isolation          | Each app has its own repo, routing, services |
+| Shared libraries        | Share Angular, RxJS, etc., to reduce bundle  |
+| Team autonomy           | Ideal for large-scale enterprise apps        |
+
+---
+
+### ⚠️ Challenges to Consider
+
+| Challenge               | Strategy                                                   |
+| ----------------------- | ---------------------------------------------------------- |
+| Version conflicts       | Align Angular versions or use shared mappings              |
+| Complex builds          | Use `ModuleFederationPlugin` carefully                     |
+| Shared state management | Use shared services or micro frontend-specific state tools |
+
+---
+
+### 🎯 Summary for Interviews:
+
+- Micro frontends split a monolithic frontend into **independent apps**.
+- **Module Federation** enables runtime sharing of Angular modules across apps.
+- In Angular, this is commonly implemented using **Webpack 5 + module federation plugin**.
+- Great for **large teams**, **independent deployments**, and **scalable architecture**.
+- Requires **careful planning** of routing, versioning, and shared libraries.
+
+---
+
+<div align="right">
+    <b><a href="#table-of-contents">↥ back to top</a></b>
+</div>
