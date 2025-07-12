@@ -2390,3 +2390,168 @@ exposes: {
 <div align="right">
     <b><a href="#table-of-contents">↥ back to top</a></b>
 </div>
+
+## 24. How do you optimize performance in Angular apps?
+
+Performance optimization in Angular apps involves several strategies across **build optimization**, **change detection**, **network efficiency**, and **UX responsiveness**.
+
+Well-optimized Angular applications are:
+
+- Fast to load (low initial bundle)
+- Smooth to use (minimal re-renders)
+- Efficient (low memory & CPU usage)
+
+---
+
+### 🚀 Key Angular Performance Optimization Techniques
+
+---
+
+#### ✅ 1. **Use Lazy Loading for Modules**
+
+Load feature modules only when needed.
+
+```ts
+{
+  path: 'admin',
+  loadChildren: () => import('./admin/admin.module').then(m => m.AdminModule)
+}
+```
+
+📈 Benefit: Smaller initial bundle size.
+
+---
+
+#### ✅ 2. **Enable Ahead-of-Time (AOT) Compilation**
+
+AOT compiles Angular templates **at build time**, not in the browser.
+
+```bash
+ng build --prod
+```
+
+📈 Benefit: Faster rendering, smaller bundles, early error detection.
+
+---
+
+#### ✅ 3. **Use OnPush Change Detection Strategy**
+
+```ts
+@Component({
+  changeDetection: ChangeDetectionStrategy.OnPush
+})
+```
+
+This tells Angular to **re-render only when input changes**, instead of running on every event.
+
+📈 Benefit: Reduces unnecessary checks and DOM updates.
+
+---
+
+#### ✅ 4. **Avoid Memory Leaks (Unsubscribe)**
+
+Always unsubscribe from observables or use `async` pipe.
+
+```ts
+ngOnDestroy() {
+  this.subscription.unsubscribe();
+}
+```
+
+Or better:
+
+```html
+<div *ngIf="data$ | async as data">{{ data }}</div>
+```
+
+📈 Benefit: Prevents memory leaks and long GC pauses.
+
+---
+
+#### ✅ 5. **Use TrackBy in ngFor Loops**
+
+```html
+<li *ngFor="let item of items; trackBy: trackById"></li>
+```
+
+```ts
+trackById(index: number, item: Item) {
+  return item.id;
+}
+```
+
+📈 Benefit: Prevents re-rendering unchanged DOM elements.
+
+---
+
+#### ✅ 6. **Use Pure Pipes Over Impure Pipes**
+
+Pure pipes recalculate only when input changes.
+
+```ts
+@Pipe({ name: 'customPipe', pure: true })
+```
+
+📈 Benefit: Better performance with large lists or data-bound UIs.
+
+---
+
+#### ✅ 7. **Minimize DOM and Change Detection Work**
+
+- Avoid deeply nested structures
+- Avoid placing heavy logic inside templates
+- Use `ngZone.runOutsideAngular()` to skip change detection when needed
+
+---
+
+#### ✅ 8. **Bundle Optimization**
+
+- Enable **build optimizations** and **tree-shaking** in `angular.json`
+- Use **source-map-explorer** to audit bundle sizes
+- Remove unused polyfills and 3rd-party libraries
+
+---
+
+#### ✅ 9. **Defer Non-Critical Scripts**
+
+Load scripts or images only when needed using:
+
+- `loading="lazy"` for images
+- Dynamic `import()` for heavy modules
+
+---
+
+#### ✅ 10. **Use Web Workers for Heavy Computations**
+
+Offload CPU-heavy tasks like data processing to a separate thread.
+
+```bash
+ng generate web-worker my-worker
+```
+
+---
+
+### 🧠 Pro Performance Tips
+
+| Optimization                   | When to Use                               |
+| ------------------------------ | ----------------------------------------- |
+| `OnPush` strategy              | For smart/dumb component separation       |
+| `trackBy` in `*ngFor`          | Large lists or real-time updates          |
+| `async` pipe                   | Reactive, auto-unsubscribing data streams |
+| PreloadingStrategy for modules | Load lazy modules in background           |
+| Service workers & PWA          | For offline capability and faster load    |
+
+---
+
+### 🎯 Summary for Interviews:
+
+- Angular performance is optimized via **lazy loading**, **AOT**, **OnPush**, **trackBy**, and **tree-shaking**.
+- Use **async pipes**, **pure pipes**, and **web workers** to reduce CPU/memory overhead.
+- Performance bottlenecks can be avoided by limiting change detection and memory leaks.
+- Tools like `source-map-explorer`, `Lighthouse`, and `RxJS` best practices help analyze and improve performance.
+
+---
+
+<div align="right">
+    <b><a href="#table-of-contents">↥ back to top</a></b>
+</div>
