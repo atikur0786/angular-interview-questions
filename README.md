@@ -2555,3 +2555,93 @@ ng generate web-worker my-worker
 <div align="right">
     <b><a href="#table-of-contents">↥ back to top</a></b>
 </div>
+
+## 25. What are pure and impure pipes? How do they affect performance?
+
+In Angular, **pipes** are used to transform data in templates. These pipes can be either **pure** or **impure**, which determines **when and how often** the pipe’s `transform()` method is called.
+
+The distinction between the two directly affects **performance**, especially in large or dynamic UIs.
+
+---
+
+### 🔍 What is a Pure Pipe?
+
+A **pure pipe** is a pipe that Angular executes **only when it detects a pure change** in the input data.
+
+✅ By default, all Angular pipes are **pure** unless explicitly marked otherwise.
+
+#### Pure changes include:
+
+- Primitives (`string`, `number`, `boolean`) that are changed
+- Object or array **references** changing (not just internal mutation)
+
+```ts
+@Pipe({ name: "capitalize" }) // default is pure: true
+export class CapitalizePipe implements PipeTransform {
+  transform(value: string): string {
+    return value.charAt(0).toUpperCase() + value.slice(1);
+  }
+}
+```
+
+📈 **Performance Benefit:**
+
+- Called only when input reference changes
+- Efficient for use in large lists or frequent change detection cycles
+
+---
+
+### 🔍 What is an Impure Pipe?
+
+An **impure pipe** is one that Angular calls **on every change detection cycle**, regardless of whether its inputs have changed.
+
+```ts
+@Pipe({ name: "filterList", pure: false })
+export class FilterListPipe implements PipeTransform {
+  transform(items: any[], search: string): any[] {
+    return items.filter((item) => item.name.includes(search));
+  }
+}
+```
+
+📉 **Performance Concern:**
+
+- Called very frequently — can lead to **laggy UIs** if the logic is expensive
+- Should be used **only when necessary**, e.g., for real-time filtering
+
+---
+
+### 📦 Pure vs Impure Pipe Comparison
+
+| Feature           | Pure Pipe                            | Impure Pipe                                         |
+| ----------------- | ------------------------------------ | --------------------------------------------------- |
+| `@Pipe({ pure })` | `true` (default)                     | `false`                                             |
+| Called When       | Input reference changes              | Every change detection cycle                        |
+| Use Case          | Simple transforms (e.g., formatting) | Complex transforms with internal mutations          |
+| Performance       | High performance                     | Lower performance (if misused)                      |
+| Example           | `uppercase`, `date`, `currency`      | `filter`, `sort`, or custom pipes with mutable data |
+
+---
+
+### 🧠 Best Practices
+
+- Use **pure pipes** whenever possible for **better performance**
+- Avoid **impure pipes** in large lists or high-frequency updates
+- For filtering/sorting, consider:
+  - Doing the operation in the component
+  - Caching results to avoid recomputation
+
+---
+
+### 🎯 Summary for Interviews:
+
+- Angular pipes are **pure by default**, meaning they only recalculate when inputs change by reference.
+- **Impure pipes** are called on every change detection cycle, which can **negatively affect performance**.
+- Use impure pipes **only when necessary**, and avoid them in performance-critical scenarios.
+- Understanding pure vs impure pipes is essential for building **high-performance Angular apps**.
+
+---
+
+<div align="right">
+    <b><a href="#table-of-contents">↥ back to top</a></b>
+</div>
