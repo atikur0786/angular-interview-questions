@@ -2645,3 +2645,117 @@ export class FilterListPipe implements PipeTransform {
 <div align="right">
     <b><a href="#table-of-contents">↥ back to top</a></b>
 </div>
+
+## 26. Explain `ngZone` and `zone.js` – how do they relate to change detection?
+
+Angular’s powerful **change detection system** relies on **`NgZone`** and **`zone.js`** to automatically track **asynchronous operations** and update the UI when needed.
+
+These tools allow Angular to know _when to run change detection_, without the developer manually triggering it in most cases.
+
+---
+
+### 🔄 What is `zone.js`?
+
+- `zone.js` is a **third-party library** used by Angular to **patch async APIs** (like `setTimeout`, `fetch`, `Promise`, etc.).
+- It creates an **execution context (zone)** around your code, tracking all asynchronous tasks.
+
+> Think of it as a "watchdog" that notifies Angular every time an async task completes.
+
+---
+
+### 🔧 What is `NgZone`?
+
+`NgZone` is an Angular wrapper around `zone.js` that:
+
+- Detects **when a task completes**
+- Triggers **Angular's change detection** to update the DOM
+
+It provides APIs like:
+
+```ts
+ngZone.run(() => { ... });          // run code inside Angular zone (triggers change detection)
+ngZone.runOutsideAngular(() => { ... });  // run code outside Angular zone (skips change detection)
+```
+
+---
+
+### 🧠 How Change Detection Works with `zone.js`
+
+1. User triggers an action (e.g., button click)
+2. Async task starts (e.g., `setTimeout`, HTTP call)
+3. `zone.js` tracks the task via patched APIs
+4. When the task completes, Angular is notified
+5. `NgZone` runs **change detection** to check for any data changes
+6. The DOM updates automatically
+
+---
+
+### 🧪 Example: Without `NgZone`
+
+```ts
+setTimeout(() => {
+  this.counter++; // UI might not update
+}, 1000);
+```
+
+Angular may not know when to update. You’d need to trigger it manually.
+
+---
+
+### ✅ Example: Using `NgZone.run()`
+
+```ts
+constructor(private ngZone: NgZone) {}
+
+someAsyncTask() {
+  setTimeout(() => {
+    this.ngZone.run(() => {
+      this.counter++; // UI updates automatically
+    });
+  }, 1000);
+}
+```
+
+---
+
+### ⚡ Optimization: `runOutsideAngular()`
+
+If you want to **skip change detection** (e.g., for performance-heavy background tasks):
+
+```ts
+this.ngZone.runOutsideAngular(() => {
+  // expensive or repeated tasks here (like animations or polling)
+  setTimeout(() => {
+    this.ngZone.run(() => {
+      this.counter++; // only re-enter Angular when necessary
+    });
+  }, 2000);
+});
+```
+
+---
+
+### 📦 Summary Table
+
+| Feature            | `zone.js`                        | `NgZone`                                   |
+| ------------------ | -------------------------------- | ------------------------------------------ |
+| Provided by        | Third-party library              | Angular framework                          |
+| Role               | Tracks async tasks globally      | Controls Angular’s change detection zone   |
+| Main API usage     | Behind the scenes                | `run()`, `runOutsideAngular()`             |
+| Performance impact | Adds automatic tracking overhead | Can be optimized via `runOutsideAngular()` |
+
+---
+
+### 🎯 Summary for Interviews:
+
+- Angular uses **`zone.js`** to automatically detect when async operations complete.
+- **`NgZone`** is Angular’s abstraction to **trigger or skip** change detection.
+- `NgZone.run()` ensures changes are detected and UI updates.
+- `NgZone.runOutsideAngular()` is used for performance optimization by avoiding unnecessary change detection.
+- Understanding `NgZone` is key for handling performance-critical operations and custom asynchronous flows.
+
+---
+
+<div align="right">
+    <b><a href="#table-of-contents">↥ back to top</a></b>
+</div>
