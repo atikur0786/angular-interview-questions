@@ -2759,3 +2759,110 @@ this.ngZone.runOutsideAngular(() => {
 <div align="right">
     <b><a href="#table-of-contents">↥ back to top</a></b>
 </div>
+
+## 27. What is `Renderer2` and why would you use it instead of direct DOM manipulation?
+
+`Renderer2` is a **platform-independent API** provided by Angular to safely perform **DOM manipulations** like creating elements, adding/removing classes, setting styles, or listening to events — **without directly accessing the browser's native DOM APIs.**
+
+This abstraction helps Angular apps remain **compatible across platforms** (like browsers, servers, or web workers), and ensures **security, testability, and consistency**.
+
+---
+
+### 🧱 Why Not Use `document` or `element.nativeElement` Directly?
+
+Direct DOM access like:
+
+```ts
+document.querySelector("#myElement").style.color = "red";
+```
+
+- **Breaks Angular’s platform independence**
+- **May not work in server-side rendering (SSR)**
+- **Introduces security risks like XSS**
+- **Is hard to test and mock**
+
+Angular encourages using `Renderer2` to avoid such issues.
+
+---
+
+### 🔧 What is `Renderer2`?
+
+`Renderer2` is an Angular service injected into components or directives that lets you **safely interact with the DOM**.
+
+```ts
+constructor(private renderer: Renderer2) {}
+```
+
+---
+
+### ✅ Example: Using Renderer2
+
+```ts
+@ViewChild('box') boxRef!: ElementRef;
+
+constructor(private renderer: Renderer2) {}
+
+ngAfterViewInit() {
+  this.renderer.setStyle(this.boxRef.nativeElement, 'color', 'blue');
+  this.renderer.addClass(this.boxRef.nativeElement, 'highlighted');
+}
+```
+
+```html
+<div #box>Hello Renderer</div>
+```
+
+---
+
+### 📚 Common `Renderer2` Methods
+
+| Method                         | Description                     |
+| ------------------------------ | ------------------------------- |
+| `createElement()`              | Create a new DOM element        |
+| `createText()`                 | Create a text node              |
+| `appendChild()`                | Append child to parent          |
+| `setAttribute()`               | Set an attribute on an element  |
+| `removeAttribute()`            | Remove attribute                |
+| `addClass()` / `removeClass()` | Add/remove CSS class            |
+| `setStyle()` / `removeStyle()` | Modify inline styles            |
+| `listen()`                     | Attach event listeners          |
+| `setProperty()`                | Set a property on a DOM element |
+
+---
+
+### 🚀 When Should You Use Renderer2?
+
+| Use Case                            | Why Use Renderer2                        |
+| ----------------------------------- | ---------------------------------------- |
+| DOM manipulation in Angular         | Keeps SSR support and testability        |
+| Building custom directives          | Safely apply behavior to host elements   |
+| Writing UI libraries                | Ensures abstraction from native APIs     |
+| Supporting web workers or platforms | Avoids reliance on browser-specific APIs |
+
+---
+
+### 🧠 Advanced Tip
+
+You can use `Renderer2.listen()` to attach event listeners in a **platform-safe** way:
+
+```ts
+this.renderer.listen(this.boxRef.nativeElement, "click", () => {
+  alert("Box clicked!");
+});
+```
+
+---
+
+### 🎯 Summary for Interviews:
+
+- `Renderer2` is Angular’s **safe abstraction** over direct DOM manipulation.
+- It’s used for modifying elements without breaking platform compatibility.
+- Avoids issues with **SSR, testing, and cross-platform rendering**.
+- Commonly used in **directives, dynamic components, or UI libraries**.
+- Use `ElementRef` cautiously — always prefer `Renderer2` for DOM actions.
+
+---
+
+<div align="right">
+    <b><a href="#table-of-contents">↥ back to top</a></b>
+</div>
