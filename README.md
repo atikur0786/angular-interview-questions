@@ -2866,3 +2866,193 @@ this.renderer.listen(this.boxRef.nativeElement, "click", () => {
 <div align="right">
     <b><a href="#table-of-contents">↥ back to top</a></b>
 </div>
+
+## 28. How do you unit test components, services, and interceptors?
+
+Angular provides a powerful testing ecosystem built on **Jasmine** (testing framework) and **Karma** (test runner). Unit testing ensures that each part of your application (components, services, interceptors) behaves as expected in isolation.
+
+---
+
+## ✅ Testing Strategy Overview
+
+| Type        | Purpose                                       |
+| ----------- | --------------------------------------------- |
+| Component   | Test UI logic, DOM updates, bindings          |
+| Service     | Test business logic, API calls, data handling |
+| Interceptor | Test request/response modification            |
+
+---
+
+## 🧩 1. Unit Testing Angular Components
+
+### 🔧 Setup
+
+```ts
+import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { MyComponent } from "./my.component";
+
+describe("MyComponent", () => {
+  let component: MyComponent;
+  let fixture: ComponentFixture<MyComponent>;
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      declarations: [MyComponent],
+    });
+
+    fixture = TestBed.createComponent(MyComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges(); // triggers ngOnInit and DOM rendering
+  });
+
+  it("should create the component", () => {
+    expect(component).toBeTruthy();
+  });
+
+  it("should render title in h1", () => {
+    component.title = "Hello Test";
+    fixture.detectChanges();
+    const compiled = fixture.nativeElement;
+    expect(compiled.querySelector("h1").textContent).toContain("Hello Test");
+  });
+});
+```
+
+---
+
+## 🔧 2. Unit Testing Angular Services
+
+### Example: Testing a Service with HttpClient
+
+```ts
+import { TestBed } from "@angular/core/testing";
+import { MyService } from "./my.service";
+import {
+  HttpClientTestingModule,
+  HttpTestingController,
+} from "@angular/common/http/testing";
+
+describe("MyService", () => {
+  let service: MyService;
+  let httpMock: HttpTestingController;
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      imports: [HttpClientTestingModule],
+      providers: [MyService],
+    });
+
+    service = TestBed.inject(MyService);
+    httpMock = TestBed.inject(HttpTestingController);
+  });
+
+  it("should fetch data from API", () => {
+    const mockResponse = [{ id: 1, name: "Test" }];
+
+    service.getData().subscribe((data) => {
+      expect(data.length).toBe(1);
+      expect(data[0].name).toBe("Test");
+    });
+
+    const req = httpMock.expectOne("/api/data");
+    expect(req.request.method).toBe("GET");
+    req.flush(mockResponse);
+  });
+
+  afterEach(() => {
+    httpMock.verify();
+  });
+});
+```
+
+---
+
+## 🛡️ 3. Unit Testing HTTP Interceptors
+
+### Interceptor Example:
+
+```ts
+@Injectable()
+export class AuthInterceptor implements HttpInterceptor {
+  intercept(
+    req: HttpRequest<any>,
+    next: HttpHandler
+  ): Observable<HttpEvent<any>> {
+    const token = "fake-token";
+    const cloned = req.clone({
+      setHeaders: { Authorization: `Bearer ${token}` },
+    });
+    return next.handle(cloned);
+  }
+}
+```
+
+### Interceptor Test:
+
+```ts
+import { TestBed } from "@angular/core/testing";
+import { HTTP_INTERCEPTORS, HttpClient } from "@angular/common/http";
+import {
+  HttpClientTestingModule,
+  HttpTestingController,
+} from "@angular/common/http/testing";
+import { AuthInterceptor } from "./auth.interceptor";
+
+describe("AuthInterceptor", () => {
+  let http: HttpClient;
+  let httpMock: HttpTestingController;
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      imports: [HttpClientTestingModule],
+      providers: [
+        { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },
+      ],
+    });
+
+    http = TestBed.inject(HttpClient);
+    httpMock = TestBed.inject(HttpTestingController);
+  });
+
+  it("should add Authorization header", () => {
+    http.get("/test").subscribe();
+
+    const req = httpMock.expectOne("/test");
+    expect(req.request.headers.has("Authorization")).toBeTrue();
+    expect(req.request.headers.get("Authorization")).toBe("Bearer fake-token");
+  });
+
+  afterEach(() => {
+    httpMock.verify();
+  });
+});
+```
+
+---
+
+## 🧪 Tips for Writing Angular Unit Tests
+
+| Best Practice                          | Why It Helps                          |
+| -------------------------------------- | ------------------------------------- |
+| Use `TestBed.configureTestingModule()` | Sets up the test environment          |
+| Use `HttpTestingController`            | Mock and test HTTP requests cleanly   |
+| Keep tests isolated                    | Avoid testing multiple things at once |
+| Use spies (`jasmine.createSpy()`)      | Mock dependencies easily              |
+| Call `fixture.detectChanges()`         | Sync the component and its template   |
+| Verify after each HTTP test            | Ensures no pending requests remain    |
+
+---
+
+## ✅ Summary for Interviews
+
+- Angular uses **TestBed** for setting up test environments.
+- **Component tests** check DOM rendering, interaction, and input/output behavior.
+- **Services are tested** using mocks or `HttpTestingController` for API calls.
+- **Interceptors are tested** by injecting them with `HTTP_INTERCEPTORS` and inspecting request headers or bodies.
+- Follow **AAA Pattern**: Arrange, Act, Assert for clean and structured tests.
+
+---
+
+<div align="right">
+    <b><a href="#table-of-contents">↥ back to top</a></b>
+</div>
