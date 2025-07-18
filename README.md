@@ -3056,3 +3056,114 @@ describe("AuthInterceptor", () => {
 <div align="right">
     <b><a href="#table-of-contents">↥ back to top</a></b>
 </div>
+
+## 29. What is a dynamic component and how do you load one at runtime?
+
+### ✅ Definition
+
+A **dynamic component** in Angular is a component that is **not declared in the template statically**. Instead, it is **created and inserted into the DOM at runtime**, typically based on user actions, configuration, or data.
+
+This is useful when:
+
+- You want to display different components dynamically based on logic.
+- You’re building modals, notifications, plugin systems, dashboards, or CMS-like UIs.
+
+---
+
+## 🧠 When to Use Dynamic Components
+
+- Showing different component types in a placeholder area.
+- Rendering modals or dialogs dynamically.
+- Embedding components from user-generated content.
+- Plugin-based architectures.
+
+---
+
+## 🔧 Step-by-Step: Loading a Component Dynamically
+
+### 1. **Create the Component to Load**
+
+```ts
+// hello.component.ts
+@Component({
+  selector: "app-hello",
+  template: `<p>Hello, I am dynamically loaded!</p>`,
+})
+export class HelloComponent {}
+```
+
+---
+
+### 2. **Prepare the Container (Host)**
+
+Use `@ViewChild()` and `ViewContainerRef` to act as a placeholder.
+
+```ts
+// dynamic-host.component.ts
+@Component({
+  selector: "app-dynamic-host",
+  template: `<ng-template #dynamicContainer></ng-template>`,
+})
+export class DynamicHostComponent {
+  @ViewChild("dynamicContainer", { read: ViewContainerRef, static: true })
+  container!: ViewContainerRef;
+
+  constructor(private resolver: ComponentFactoryResolver) {}
+
+  loadComponent() {
+    const factory = this.resolver.resolveComponentFactory(HelloComponent);
+    this.container.clear(); // optional: clears previous views
+    this.container.createComponent(factory);
+  }
+}
+```
+
+> ⚠️ In Angular 14+, you can skip `ComponentFactoryResolver` and use `ViewContainerRef.createComponent()` directly.
+
+---
+
+### ✅ Angular 14+ Modern Way (without ComponentFactoryResolver)
+
+```ts
+loadComponent() {
+  this.container.clear();
+  this.container.createComponent(HelloComponent);
+}
+```
+
+---
+
+## 🧪 Dynamic Component with Inputs
+
+If the component accepts `@Input()` values:
+
+```ts
+const componentRef = this.container.createComponent(HelloComponent);
+componentRef.instance.title = "Dynamic title passed!";
+```
+
+---
+
+## 🧹 Cleanup & Lifecycle
+
+- If components are created frequently, call `.destroy()` or `.clear()` to avoid memory leaks.
+- Dynamic components also go through the full Angular lifecycle (`ngOnInit`, etc.).
+
+---
+
+## ✅ Summary for Interviews
+
+| Key Point                 | Description                                    |
+| ------------------------- | ---------------------------------------------- |
+| **Dynamic Component**     | Loaded at runtime, not declared in template    |
+| **Uses**                  | Modals, dashboards, plugin systems, CMS        |
+| **Tooling**               | `ViewContainerRef`, `ComponentFactoryResolver` |
+| **Modern Angular (v14+)** | Uses `createComponent()` directly              |
+| **Pass Inputs**           | Via `componentRef.instance`                    |
+| **Memory Management**     | Use `.clear()` or `.destroy()`                 |
+
+---
+
+<div align="right">
+    <b><a href="#table-of-contents">↥ back to top</a></b>
+</div>
