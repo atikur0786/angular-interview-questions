@@ -3167,3 +3167,102 @@ componentRef.instance.title = "Dynamic title passed!";
 <div align="right">
     <b><a href="#table-of-contents">↥ back to top</a></b>
 </div>
+
+## 30. Explain the Angular Compilation Process: AoT vs JIT
+
+In Angular, templates written in HTML are **compiled into JavaScript** so the browser can understand and execute them. This compilation can happen in **two ways**:
+
+- **AoT (Ahead-of-Time) Compilation**
+- **JIT (Just-in-Time) Compilation**
+
+---
+
+### 🚀 What is Compilation in Angular?
+
+Angular templates are not plain HTML — they contain Angular syntax like `*ngIf`, `{{ data }}`, `@Input()`, etc. The **Angular Compiler (ngc)** converts this template syntax + TypeScript code into efficient JavaScript at compile time.
+
+---
+
+## 🧠 What is JIT (Just-in-Time) Compilation?
+
+JIT compiles Angular components **in the browser at runtime**.
+
+### ✅ Characteristics:
+
+- Compilation happens when the app is launched.
+- Used in **development mode** by default.
+- Faster build time, but **slower app start time**.
+- Includes full metadata and compiler in the bundle.
+
+### 📦 Example:
+
+```ts
+platformBrowserDynamic().bootstrapModule(AppModule);
+```
+
+---
+
+## ⚙️ What is AoT (Ahead-of-Time) Compilation?
+
+AoT compiles Angular templates **at build time**, before the app is run in the browser.
+
+### ✅ Characteristics:
+
+- Used in **production mode**.
+- Templates are precompiled into efficient JS.
+- Faster app startup (no compilation at runtime).
+- Smaller bundle size (compiler is removed).
+- Better security (detects template errors early).
+- Fewer runtime surprises (fail-fast approach).
+
+### 📦 Example:
+
+```ts
+platformBrowser().bootstrapModuleFactory(AppModuleNgFactory);
+```
+
+---
+
+## 🆚 Comparison Table: AoT vs JIT
+
+| Feature              | AoT (Ahead-of-Time)  | JIT (Just-in-Time)         |
+| -------------------- | -------------------- | -------------------------- |
+| **Compilation Time** | Build time           | Runtime (in browser)       |
+| **Build Size**       | Smaller              | Larger (includes compiler) |
+| **Startup Time**     | Faster               | Slower                     |
+| **Error Detection**  | Early (compile-time) | Late (runtime)             |
+| **Best for**         | Production           | Development                |
+| **Security**         | More secure          | Less secure                |
+
+---
+
+## 🔍 How to Enable AoT in Angular CLI
+
+Angular CLI uses AoT **by default** for production builds.
+
+```bash
+ng build --configuration production
+```
+
+Or:
+
+```bash
+ng build --aot
+```
+
+---
+
+## ✅ Summary for Interviews
+
+| Concept             | Description                                                                             |
+| ------------------- | --------------------------------------------------------------------------------------- |
+| **JIT**             | Compiles templates in the browser at runtime. Used in development.                      |
+| **AoT**             | Compiles templates during build. Used in production for faster load and smaller bundle. |
+| **Benefits of AoT** | Early error detection, faster load, better performance and security.                    |
+| **When to Use JIT** | During development for faster rebuilds and debugging.                                   |
+
+---
+
+<div align="right">
+    <b><a href="#table-of-contents">↥ back to top</a></b>
+</div>
