@@ -36,6 +36,16 @@ This open-source guide covers foundational Angular interview questions with clea
 28. [How do you unit test components, services, and interceptors?](#28-how-do-you-unit-test-components-services-and-interceptors)
 29. [What is a dynamic component and how do you load one at runtime?](#29-what-is-a-dynamic-component-and-how-do-you-load-one-at-runtime)
 30. [Explain the Angular compilation process: AoT vs JIT.](#30-explain-the-angular-compilation-process-aot-vs-jit)
+31. [How would you implement a global error handler?](#31-how-would-you-implement-a-global-error-handler)
+32. [How would you build a role-based authentication system in Angular?](#32-how-would-you-build-a-role-based-authentication-system-in-angular)
+33. [How do you protect certain routes based on user roles?](#33-how-do-you-protect-certain-routes-based-on-user-roles)
+34. [How would you implement a retry mechanism for failed API calls?](#34-how-would-you-implement-a-retry-mechanism-for-failed-api-calls)
+35. [How do you manage global state in Angular (e.g., using NgRx or a shared service)?](#35-how-do-you-manage-global-state-in-angular-eg-using-ngrx-or-a-shared-service)
+36. [How would you share data between unrelated components?](#36-how-would-you-share-data-between-unrelated-components)
+37. [How do you handle file upload and preview in Angular?](#37-how-do-you-handle-file-upload-and-preview-in-angular)
+38. [How would you integrate a third-party chart library or rich text editor?](#38-how-would-you-integrate-a-third-party-chart-library-or-rich-text-editor)
+39. [How do you handle environment-based configurations (dev/prod)?](#39-how-do-you-handle-environment-based-configurations-devprod)
+40. [How would you lazy load and preload Angular modules?](#40-how-would-you-lazy-load-and-preload-angular-modules)
 
 ---
 
@@ -3260,6 +3270,82 @@ ng build --aot
 | **AoT**             | Compiles templates during build. Used in production for faster load and smaller bundle. |
 | **Benefits of AoT** | Early error detection, faster load, better performance and security.                    |
 | **When to Use JIT** | During development for faster rebuilds and debugging.                                   |
+
+---
+
+<div align="right">
+    <b><a href="#table-of-contents">↥ back to top</a></b>
+</div>
+
+## 31. How would you implement a global error handler?\*\*
+
+In Angular, a global error handler can be implemented using the `ErrorHandler` class provided by the framework. This allows you to catch and process all unhandled errors throughout the application — useful for logging, user notifications, or redirecting to an error page.
+
+---
+
+### 🔧 **Steps to Implement a Global Error Handler**
+
+#### 1. **Create a Custom Error Handler Class**
+
+```ts
+// global-error-handler.service.ts
+import { ErrorHandler, Injectable, Injector } from "@angular/core";
+import { HttpErrorResponse } from "@angular/common/http";
+import { Router } from "@angular/router";
+
+@Injectable()
+export class GlobalErrorHandler implements ErrorHandler {
+  constructor(private injector: Injector) {} // use Injector to avoid cyclic deps
+
+  handleError(error: any): void {
+    const router = this.injector.get(Router);
+
+    if (error instanceof HttpErrorResponse) {
+      // Handle server errors
+      console.error("HTTP Error:", error.status, error.message);
+
+      if (error.status === 401) {
+        // Unauthorized - redirect to login
+        router.navigate(["/login"]);
+      } else if (error.status === 500) {
+        // Server error - show error page
+        router.navigate(["/error"]);
+      }
+    } else {
+      // Handle client-side or unknown errors
+      console.error("Client Error:", error.message);
+      router.navigate(["/error"]);
+    }
+
+    // Optionally log to external service
+    // this.loggingService.logError(error);
+  }
+}
+```
+
+---
+
+#### 2. **Provide It in Your App Module**
+
+```ts
+// app.module.ts
+import { NgModule, ErrorHandler } from "@angular/core";
+import { GlobalErrorHandler } from "./global-error-handler.service";
+
+@NgModule({
+  providers: [{ provide: ErrorHandler, useClass: GlobalErrorHandler }],
+})
+export class AppModule {}
+```
+
+---
+
+### 🛡️ **Best Practices**
+
+- Avoid injecting services directly in the constructor to prevent cyclic dependencies — use `Injector` instead.
+- Don't swallow errors silently. Always log or report them.
+- Create user-friendly error pages (e.g., `/error`, `/not-found`, etc.).
+- Optionally report errors to an external monitoring tool (Sentry, LogRocket, etc.).
 
 ---
 
