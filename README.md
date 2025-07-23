@@ -3352,3 +3352,155 @@ export class AppModule {}
 <div align="right">
     <b><a href="#table-of-contents">↥ back to top</a></b>
 </div>
+
+## 32. How would you build a role-based authentication system in Angular?\*\*
+
+A role-based authentication system ensures that different types of users (e.g., admin, editor, viewer) can only access parts of the application appropriate to their role. This enhances security and maintains proper access control across routes, components, and UI elements.
+
+---
+
+### 🔐 **Step-by-Step Implementation Guide**
+
+#### 1. **Authentication Service**
+
+Responsible for login/logout and storing user info (like role) in a token or in-memory.
+
+```ts
+// auth.service.ts
+import { Injectable } from "@angular/core";
+import { Router } from "@angular/router";
+
+@Injectable({ providedIn: "root" })
+export class AuthService {
+  private currentUser: any;
+
+  constructor(private router: Router) {}
+
+  login(userData: any) {
+    // In a real app, you'd get a JWT or session token from server
+    localStorage.setItem("user", JSON.stringify(userData));
+    this.currentUser = userData;
+  }
+
+  logout() {
+    localStorage.removeItem("user");
+    this.currentUser = null;
+    this.router.navigate(["/login"]);
+  }
+
+  getUser() {
+    return this.currentUser || JSON.parse(localStorage.getItem("user") || "{}");
+  }
+
+  hasRole(role: string): boolean {
+    const user = this.getUser();
+    return user?.roles?.includes(role);
+  }
+
+  isAuthenticated(): boolean {
+    return !!this.getUser();
+  }
+}
+```
+
+---
+
+#### 2. **Role-Based Route Guard**
+
+Prevent users from accessing unauthorized routes based on their role.
+
+```ts
+// role.guard.ts
+import { Injectable } from "@angular/core";
+import {
+  CanActivate,
+  ActivatedRouteSnapshot,
+  RouterStateSnapshot,
+  Router,
+} from "@angular/router";
+import { AuthService } from "./auth.service";
+
+@Injectable({ providedIn: "root" })
+export class RoleGuard implements CanActivate {
+  constructor(
+    private auth: AuthService,
+    private router: Router
+  ) {}
+
+  canActivate(route: ActivatedRouteSnapshot): boolean {
+    const expectedRoles = route.data["roles"] as string[];
+    const user = this.auth.getUser();
+
+    if (!user || !expectedRoles.some((role) => user.roles.includes(role))) {
+      this.router.navigate(["/unauthorized"]);
+      return false;
+    }
+
+    return true;
+  }
+}
+```
+
+---
+
+#### 3. **Configure Routes with Roles**
+
+Use `data` property to define allowed roles for each route.
+
+```ts
+// app-routing.module.ts
+const routes: Routes = [
+  {
+    path: "admin",
+    component: AdminComponent,
+    canActivate: [RoleGuard],
+    data: { roles: ["admin"] },
+  },
+  {
+    path: "editor",
+    component: EditorComponent,
+    canActivate: [RoleGuard],
+    data: { roles: ["editor", "admin"] },
+  },
+  {
+    path: "unauthorized",
+    component: UnauthorizedComponent,
+  },
+];
+```
+
+---
+
+#### 4. **Control UI Elements Based on Role**
+
+You can hide or show elements in templates using a directive or method:
+
+```html
+<!-- Example -->
+<button *ngIf="authService.hasRole('admin')">Admin Panel</button>
+```
+
+---
+
+### 🛡️ **Security Considerations**
+
+- **NEVER** trust client-side role checks alone — also enforce them on the backend.
+- Use JWT tokens or sessions securely with HTTPS.
+- Refresh user role/token on app start to avoid stale state.
+
+---
+
+### ✅ Summary
+
+> Role-based authentication in Angular involves:
+>
+> - Storing user roles securely.
+> - Guarding routes via `CanActivate`.
+> - Dynamically rendering UI elements based on roles.
+> - Ensuring backend validation to prevent unauthorized access.
+
+---
+
+<div align="right">
+    <b><a href="#table-of-contents">↥ back to top</a></b>
+</div>
