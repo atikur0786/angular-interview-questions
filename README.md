@@ -3504,3 +3504,124 @@ You can hide or show elements in templates using a directive or method:
 <div align="right">
     <b><a href="#table-of-contents">↥ back to top</a></b>
 </div>
+
+## 33. How do you protect certain routes based on user roles?\*\*
+
+Protecting routes based on user roles in Angular is done using **route guards**, particularly the `CanActivate` guard. This ensures users can only access the routes that match their assigned roles (e.g. `admin`, `editor`, `user`, etc.).
+
+---
+
+### 🔐 Step-by-Step Implementation
+
+#### 1. **Assume Your User Object Has Roles**
+
+When users log in, your backend sends a JWT or user object with assigned roles:
+
+```ts
+// Sample user object
+{
+  username: 'john',
+  roles: ['admin', 'editor']
+}
+```
+
+This is stored in localStorage or a service for easy access.
+
+---
+
+#### 2. **Create a Role-Based Route Guard**
+
+```ts
+// role.guard.ts
+import { Injectable } from "@angular/core";
+import { CanActivate, ActivatedRouteSnapshot, Router } from "@angular/router";
+import { AuthService } from "./auth.service";
+
+@Injectable({ providedIn: "root" })
+export class RoleGuard implements CanActivate {
+  constructor(
+    private auth: AuthService,
+    private router: Router
+  ) {}
+
+  canActivate(route: ActivatedRouteSnapshot): boolean {
+    const expectedRoles: string[] = route.data["roles"];
+    const user = this.auth.getUser();
+
+    if (!user || !expectedRoles.some((role) => user.roles.includes(role))) {
+      this.router.navigate(["/unauthorized"]); // Redirect if not allowed
+      return false;
+    }
+
+    return true;
+  }
+}
+```
+
+---
+
+#### 3. **Use the Guard in Your Routing Configuration**
+
+```ts
+// app-routing.module.ts
+const routes: Routes = [
+  {
+    path: "admin-dashboard",
+    component: AdminDashboardComponent,
+    canActivate: [RoleGuard],
+    data: { roles: ["admin"] },
+  },
+  {
+    path: "editor-dashboard",
+    component: EditorDashboardComponent,
+    canActivate: [RoleGuard],
+    data: { roles: ["editor", "admin"] },
+  },
+  {
+    path: "unauthorized",
+    component: UnauthorizedComponent,
+  },
+];
+```
+
+---
+
+#### 4. **AuthService with Role Check**
+
+```ts
+// auth.service.ts
+getUser() {
+  return JSON.parse(localStorage.getItem('user') || '{}');
+}
+
+hasRole(role: string): boolean {
+  const user = this.getUser();
+  return user?.roles?.includes(role);
+}
+```
+
+---
+
+#### 5. **(Optional) UI Restriction for Buttons or Menus**
+
+```html
+<!-- Only show admin link if user has 'admin' role -->
+<a *ngIf="authService.hasRole('admin')" routerLink="/admin-dashboard">Admin</a>
+```
+
+---
+
+### ✅ Summary
+
+> To protect routes based on roles:
+>
+> - Use `CanActivate` guard and access route metadata via `data.roles`.
+> - Verify the user's role from AuthService.
+> - Redirect unauthorized users to an error or login page.
+> - Always validate roles on the **backend** too, for true security.
+
+---
+
+<div align="right">
+    <b><a href="#table-of-contents">↥ back to top</a></b>
+</div>
