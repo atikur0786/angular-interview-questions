@@ -3625,3 +3625,114 @@ hasRole(role: string): boolean {
 <div align="right">
     <b><a href="#table-of-contents">↥ back to top</a></b>
 </div>
+
+## 34. How would you implement a retry mechanism for failed API calls?\*\*
+
+In Angular, you can implement a retry mechanism for failed HTTP requests using **RxJS operators** like `retry()`, `retryWhen()`, `delay()`, and `take()` with `HttpClient`.
+
+This is especially useful for transient failures like network issues or rate limiting.
+
+---
+
+### 🔁 **Basic Retry with `retry()`**
+
+```ts
+import { HttpClient } from '@angular/common/http';
+import { retry, catchError } from 'rxjs/operators';
+import { throwError } from 'rxjs';
+
+constructor(private http: HttpClient) {}
+
+getData() {
+  return this.http.get('/api/data').pipe(
+    retry(3), // Retry 3 times before failing
+    catchError(error => {
+      console.error('Request failed after retries:', error);
+      return throwError(() => error);
+    })
+  );
+}
+```
+
+---
+
+### ⏱️ **Retry with Delay using `retryWhen()`**
+
+```ts
+import { retryWhen, delay, scan } from 'rxjs/operators';
+
+getDataWithRetry() {
+  return this.http.get('/api/data').pipe(
+    retryWhen(errors =>
+      errors.pipe(
+        scan((acc, error) => {
+          if (acc >= 2) throw error; // Retry only 3 times
+          return acc + 1;
+        }, 0),
+        delay(2000) // Delay between retries
+      )
+    ),
+    catchError(error => {
+      console.error('Failed after retries with delay:', error);
+      return throwError(() => error);
+    })
+  );
+}
+```
+
+---
+
+### 🔧 **Use Case in an Interceptor for Global Retry**
+
+You can also apply retry logic **globally** using an HTTP interceptor:
+
+```ts
+// retry.interceptor.ts
+@Injectable()
+export class RetryInterceptor implements HttpInterceptor {
+  intercept(
+    req: HttpRequest<any>,
+    next: HttpHandler
+  ): Observable<HttpEvent<any>> {
+    return next.handle(req).pipe(
+      retryWhen((errors) =>
+        errors.pipe(
+          scan((retryCount, err) => {
+            if (retryCount >= 3) {
+              throw err;
+            }
+            return retryCount + 1;
+          }, 0),
+          delay(1000)
+        )
+      )
+    );
+  }
+}
+```
+
+Register this interceptor in `AppModule` providers array with `multi: true`.
+
+---
+
+### ⚠️ **Things to Keep in Mind**
+
+- Do **not** retry on client-side validation errors (e.g., 400 Bad Request).
+- You should retry mainly on:
+  - `0` (network error),
+  - `503` (service unavailable),
+  - `429` (rate limit).
+
+- You can customize this using conditions inside the `scan` operator.
+
+---
+
+### ✅ Summary
+
+> Use `retry()` for simple retries or `retryWhen()` with `delay` and `scan` for advanced use cases. You can also add global retry logic via HTTP interceptors. Always handle errors gracefully and avoid retrying fatal errors.
+
+---
+
+<div align="right">
+    <b><a href="#table-of-contents">↥ back to top</a></b>
+</div>
