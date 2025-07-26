@@ -3736,3 +3736,143 @@ Register this interceptor in `AppModule` providers array with `multi: true`.
 <div align="right">
     <b><a href="#table-of-contents">↥ back to top</a></b>
 </div>
+
+## 35. How do you manage global state in Angular (e.g., using NgRx or a shared service)?\*\*
+
+Global state management in Angular refers to **maintaining and sharing application state (like user info, theme, authentication, cart data) across multiple components** without unnecessary duplication or prop drilling.
+
+There are two primary approaches:
+
+---
+
+## **1. Using a Shared Service with RxJS**
+
+A lightweight solution for smaller apps.
+
+### **Step 1: Create a State Service**
+
+```ts
+// app-state.service.ts
+import { Injectable } from "@angular/core";
+import { BehaviorSubject } from "rxjs";
+
+@Injectable({ providedIn: "root" })
+export class AppStateService {
+  private userSource = new BehaviorSubject<any>(null);
+  user$ = this.userSource.asObservable();
+
+  setUser(user: any) {
+    this.userSource.next(user);
+  }
+
+  clearUser() {
+    this.userSource.next(null);
+  }
+}
+```
+
+---
+
+### **Step 2: Use in Components**
+
+```ts
+// component.ts
+constructor(private appState: AppStateService) {}
+
+ngOnInit() {
+  this.appState.user$.subscribe(user => {
+    console.log('Current user:', user);
+  });
+}
+
+login() {
+  this.appState.setUser({ name: 'John', role: 'admin' });
+}
+```
+
+✅ **Advantages:** Simple, minimal boilerplate, easy to implement.
+⚠️ **Disadvantages:** Not ideal for very large apps with complex state.
+
+---
+
+## **2. Using NgRx (Redux Pattern for Angular)**
+
+For enterprise apps or complex state, use **NgRx** (a state management library following the Redux pattern).
+
+### **Core Concepts in NgRx**
+
+- **Store** → Single source of truth for state.
+- **Actions** → Describe what happened (e.g., `LOGIN_SUCCESS`).
+- **Reducers** → Update state based on actions.
+- **Selectors** → Retrieve slices of state.
+- **Effects** → Handle side effects like API calls.
+
+---
+
+### **Basic Example**
+
+#### **Define Action**
+
+```ts
+// user.actions.ts
+import { createAction, props } from "@ngrx/store";
+
+export const setUser = createAction("[User] Set", props<{ user: any }>());
+```
+
+#### **Reducer**
+
+```ts
+// user.reducer.ts
+import { createReducer, on } from "@ngrx/store";
+import { setUser } from "./user.actions";
+
+export const initialState = null;
+
+const _userReducer = createReducer(
+  initialState,
+  on(setUser, (state, { user }) => user)
+);
+
+export function userReducer(state: any, action: any) {
+  return _userReducer(state, action);
+}
+```
+
+#### **Dispatch & Select**
+
+```ts
+// component.ts
+constructor(private store: Store<{ user: any }>) {}
+
+setUser() {
+  this.store.dispatch(setUser({ user: { name: 'John', role: 'admin' } }));
+}
+
+ngOnInit() {
+  this.store.select('user').subscribe(user => console.log(user));
+}
+```
+
+---
+
+## ✅ **When to Use What**
+
+| Approach                  | When to Use                                    |
+| ------------------------- | ---------------------------------------------- |
+| **Shared Service + RxJS** | Small to medium apps, simple state             |
+| **NgRx (Redux)**          | Large, complex apps with multiple state slices |
+
+---
+
+### ✅ **Summary**
+
+> - Use **Shared Service with BehaviorSubject** for simple global state.
+> - Use **NgRx** for large apps needing predictable state management, time-travel debugging, and clear architecture.
+> - Both rely on **RxJS** for reactive data flow.
+
+---
+
+<div align="right">
+    <b><a href="#table-of-contents">↥ back to top</a></b>
+</div>
