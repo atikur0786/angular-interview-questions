@@ -41,7 +41,7 @@ This open-source guide covers foundational Angular interview questions with clea
 33. [How do you protect certain routes based on user roles?](#33-how-do-you-protect-certain-routes-based-on-user-roles)
 34. [How would you implement a retry mechanism for failed API calls?](#34-how-would-you-implement-a-retry-mechanism-for-failed-api-calls)
 35. [How do you manage global state in Angular (e.g., using NgRx or a shared service)?](#35-how-do-you-manage-global-state-in-angular-eg-using-ngrx-or-a-shared-service)
-36. [How would you share data between unrelated components?](#36-how-would-you-share-data-between-unrelated-components)
+36. [How would you share data between unrelated components in Angular?](#36-how-would-you-share-data-between-unrelated-components-in-angular)
 37. [How do you handle file upload and preview in Angular?](#37-how-do-you-handle-file-upload-and-preview-in-angular)
 38. [How would you integrate a third-party chart library or rich text editor?](#38-how-would-you-integrate-a-third-party-chart-library-or-rich-text-editor)
 39. [How do you handle environment-based configurations (dev/prod)?](#39-how-do-you-handle-environment-based-configurations-devprod)
@@ -3870,6 +3870,139 @@ ngOnInit() {
 > - Use **Shared Service with BehaviorSubject** for simple global state.
 > - Use **NgRx** for large apps needing predictable state management, time-travel debugging, and clear architecture.
 > - Both rely on **RxJS** for reactive data flow.
+
+---
+
+<div align="right">
+    <b><a href="#table-of-contents">↥ back to top</a></b>
+</div>
+
+## 36. How would you share data between unrelated components in Angular?
+
+In Angular, unrelated components (components not in a parent-child relationship) **cannot use `@Input()` or `@Output()` to communicate** directly. Instead, Angular provides several powerful patterns to enable communication and data sharing between such components.
+
+---
+
+### 🔹 **1. Shared Service with RxJS (Most Common Approach)**
+
+This is the most widely used and scalable method for sharing data across unrelated components using a singleton service and RxJS observables like `Subject` or `BehaviorSubject`.
+
+#### ✅ Create the Shared Service
+
+```ts
+// shared-data.service.ts
+import { Injectable } from "@angular/core";
+import { BehaviorSubject } from "rxjs";
+
+@Injectable({ providedIn: "root" })
+export class SharedDataService {
+  private sharedValue = new BehaviorSubject<string>("default");
+  sharedValue$ = this.sharedValue.asObservable();
+
+  updateValue(newVal: string) {
+    this.sharedValue.next(newVal);
+  }
+}
+```
+
+#### ✅ Component A (Sender)
+
+```ts
+// component-a.ts
+constructor(private sharedData: SharedDataService) {}
+
+sendData() {
+  this.sharedData.updateValue('Hello from A');
+}
+```
+
+#### ✅ Component B (Receiver)
+
+```ts
+// component-b.ts
+constructor(private sharedData: SharedDataService) {}
+
+ngOnInit() {
+  this.sharedData.sharedValue$.subscribe(val => {
+    console.log('Received in B:', val);
+  });
+}
+```
+
+---
+
+### 🔹 **2. State Management Libraries (NgRx, NGXS, Akita)**
+
+For complex applications with many unrelated components needing to share or sync data, use centralized state management.
+
+- **NgRx** provides a Redux-style store, actions, reducers, and selectors.
+- Promotes **predictability**, **testability**, and **scalability**.
+
+```ts
+// With NgRx: dispatch actions and use selectors to get shared state
+this.store.dispatch(updateUser({ user }));
+this.store.select(selectUser).subscribe((user) => console.log(user));
+```
+
+---
+
+### 🔹 **3. Route Parameters or Query Params**
+
+If components are navigated via Angular Router, you can pass data through the URL.
+
+```ts
+// From Component A
+this.router.navigate(["/details"], { queryParams: { id: 123 } });
+```
+
+```ts
+// In Component B
+this.route.queryParams.subscribe((params) => {
+  const id = params["id"];
+});
+```
+
+---
+
+### 🔹 **4. LocalStorage / SessionStorage**
+
+For simple, persistent data (non-sensitive), use browser storage:
+
+```ts
+localStorage.setItem("username", "john");
+const username = localStorage.getItem("username");
+```
+
+---
+
+### 🔹 **5. Event Bus (Custom Event Emitter Service)**
+
+You can also build a global event bus using an RxJS `Subject`.
+
+```ts
+// event-bus.service.ts
+event$ = new Subject<string>();
+
+emit(msg: string) {
+  this.event$.next(msg);
+}
+
+listen() {
+  return this.event$.asObservable();
+}
+```
+
+---
+
+### ✅ **Summary Table**
+
+| Method                  | When to Use                                    |
+| ----------------------- | ---------------------------------------------- |
+| Shared Service + RxJS   | Best for most cases, clean and reactive        |
+| State Management (NgRx) | Large apps needing global state & traceability |
+| Router Params           | When navigating and passing info via routes    |
+| Local/Session Storage   | Simple persistence without services            |
+| Event Bus (RxJS)        | App-wide custom event handling                 |
 
 ---
 
