@@ -4009,3 +4009,130 @@ listen() {
 <div align="right">
     <b><a href="#table-of-contents">↥ back to top</a></b>
 </div>
+
+## 37. How do you handle file upload and preview in Angular?\*\*
+
+In Angular, file upload and preview involves:
+
+1. Using an `<input type="file">` element to select a file.
+2. Reading the file with `FileReader` for preview.
+3. Uploading the file via an Angular `HttpClient` POST request to the server.
+
+---
+
+### 🔹 Step-by-Step Implementation
+
+---
+
+#### ✅ **1. Template – File Input and Preview UI**
+
+```html
+<!-- file-upload.component.html -->
+<input type="file" (change)="onFileSelected($event)" />
+<div *ngIf="previewUrl">
+  <img *ngIf="isImage" [src]="previewUrl" alt="Preview" width="200" />
+  <p *ngIf="!isImage">Selected file: {{ file?.name }}</p>
+</div>
+<button (click)="uploadFile()" [disabled]="!file">Upload</button>
+```
+
+---
+
+#### ✅ **2. Component Logic – File Handling**
+
+```ts
+// file-upload.component.ts
+import { Component } from "@angular/core";
+import { HttpClient } from "@angular/common/http";
+
+@Component({
+  selector: "app-file-upload",
+  templateUrl: "./file-upload.component.html",
+})
+export class FileUploadComponent {
+  file: File | null = null;
+  previewUrl: string | null = null;
+  isImage = false;
+
+  constructor(private http: HttpClient) {}
+
+  onFileSelected(event: Event) {
+    const input = event.target as HTMLInputElement;
+    if (input.files?.length) {
+      this.file = input.files[0];
+      const reader = new FileReader();
+
+      reader.onload = () => {
+        this.previewUrl = reader.result as string;
+        this.isImage = this.file!.type.startsWith("image/");
+      };
+      reader.readAsDataURL(this.file);
+    }
+  }
+
+  uploadFile() {
+    if (!this.file) return;
+
+    const formData = new FormData();
+    formData.append("file", this.file);
+
+    this.http.post("/api/upload", formData).subscribe({
+      next: (res) => console.log("Upload success", res),
+      error: (err) => console.error("Upload failed", err),
+    });
+  }
+}
+```
+
+---
+
+### 🔹 Backend Expectation
+
+The backend (Node.js, Django, etc.) should expect a multipart/form-data upload under the key `file`.
+
+---
+
+### ✅ **Best Practices**
+
+| Best Practice                    | Why Important                                        |
+| -------------------------------- | ---------------------------------------------------- |
+| Use `FormData`                   | To send files as multipart/form-data                 |
+| Validate file size/type          | Avoid uploading large or unsupported files           |
+| Show progress with `HttpRequest` | For UX, show upload status or spinner                |
+| Secure backend                   | Sanitize and validate uploaded content on the server |
+
+---
+
+### 🔹 Extra: Show Upload Progress (Optional)
+
+```ts
+import { HttpRequest, HttpEventType } from "@angular/common/http";
+
+const req = new HttpRequest("POST", "/api/upload", formData, {
+  reportProgress: true,
+});
+
+this.http.request(req).subscribe((event) => {
+  if (event.type === HttpEventType.UploadProgress && event.total) {
+    const progress = Math.round((100 * event.loaded) / event.total);
+    console.log(`Progress: ${progress}%`);
+  }
+});
+```
+
+---
+
+### ✅ Summary
+
+| Feature         | How                                       |
+| --------------- | ----------------------------------------- |
+| Select file     | `<input type="file">`                     |
+| Preview file    | `FileReader.readAsDataURL()`              |
+| Upload file     | `HttpClient.post()` with `FormData`       |
+| Handle progress | `HttpRequest` with `reportProgress: true` |
+
+---
+
+<div align="right">
+    <b><a href="#table-of-contents">↥ back to top</a></b>
+</div>
