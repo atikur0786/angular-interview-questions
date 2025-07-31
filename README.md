@@ -43,7 +43,7 @@ This open-source guide covers foundational Angular interview questions with clea
 35. [How do you manage global state in Angular (e.g., using NgRx or a shared service)?](#35-how-do-you-manage-global-state-in-angular-eg-using-ngrx-or-a-shared-service)
 36. [How would you share data between unrelated components in Angular?](#36-how-would-you-share-data-between-unrelated-components-in-angular)
 37. [How do you handle file upload and preview in Angular?](#37-how-do-you-handle-file-upload-and-preview-in-angular)
-38. [How would you integrate a third-party chart library or rich text editor?](#38-how-would-you-integrate-a-third-party-chart-library-or-rich-text-editor)
+38. [How would you integrate a third-party chart library or rich text editor in Angular?](#38-how-would-you-integrate-a-third-party-chart-library-or-rich-text-editor-n-angular)
 39. [How do you handle environment-based configurations (dev/prod)?](#39-how-do-you-handle-environment-based-configurations-devprod)
 40. [How would you lazy load and preload Angular modules?](#40-how-would-you-lazy-load-and-preload-angular-modules)
 
@@ -4130,6 +4130,126 @@ this.http.request(req).subscribe((event) => {
 | Preview file    | `FileReader.readAsDataURL()`              |
 | Upload file     | `HttpClient.post()` with `FormData`       |
 | Handle progress | `HttpRequest` with `reportProgress: true` |
+
+---
+
+<div align="right">
+    <b><a href="#table-of-contents">↥ back to top</a></b>
+</div>
+
+## 38. How would you integrate a third-party chart library or rich text editor in Angular?
+
+Angular supports seamless integration of third-party libraries like **charting tools** (e.g., Chart.js, ApexCharts) and **rich text editors** (e.g., Quill, CKEditor) using Angular wrappers or native libraries via npm.
+
+---
+
+### 🟦 Example 1: Integrating a Chart Library (Chart.js)
+
+#### ✅ 1. **Install Chart.js and ng2-charts (Angular wrapper)**
+
+```bash
+npm install chart.js ng2-charts
+```
+
+#### ✅ 2. **Import in Module**
+
+```ts
+import { NgChartsModule } from "ng2-charts";
+
+@NgModule({
+  imports: [NgChartsModule],
+})
+export class AppModule {}
+```
+
+#### ✅ 3. **Use in Component**
+
+```html
+<!-- chart.component.html -->
+<canvas baseChart [data]="chartData" [type]="'bar'" [options]="chartOptions">
+</canvas>
+```
+
+```ts
+// chart.component.ts
+import { Component } from "@angular/core";
+import { ChartOptions, ChartType, ChartData } from "chart.js";
+
+@Component({
+  selector: "app-chart",
+  templateUrl: "./chart.component.html",
+})
+export class ChartComponent {
+  chartData: ChartData<"bar"> = {
+    labels: ["Jan", "Feb", "Mar"],
+    datasets: [{ data: [65, 59, 80], label: "Sales" }],
+  };
+  chartOptions: ChartOptions = {
+    responsive: true,
+  };
+}
+```
+
+---
+
+### 🟦 Example 2: Integrating a Rich Text Editor (Quill)
+
+#### ✅ 1. **Install Quill and ngx-quill**
+
+```bash
+npm install quill ngx-quill
+```
+
+#### ✅ 2. **Import Modules**
+
+```ts
+import { QuillModule } from "ngx-quill";
+
+@NgModule({
+  imports: [QuillModule.forRoot()],
+})
+export class AppModule {}
+```
+
+#### ✅ 3. **Use in Template**
+
+```html
+<!-- rich-text.component.html -->
+<quill-editor [(ngModel)]="editorContent"></quill-editor>
+<p>Preview:</p>
+<div [innerHTML]="editorContent"></div>
+```
+
+```ts
+// rich-text.component.ts
+export class RichTextComponent {
+  editorContent: string = "";
+}
+```
+
+> 🔒 Don't forget to enable `FormsModule` or `ReactiveFormsModule` for `ngModel`.
+
+---
+
+### ✅ Best Practices
+
+| Task                                                      | Why It’s Important                                  |
+| --------------------------------------------------------- | --------------------------------------------------- |
+| Use official Angular wrappers (`ng2-charts`, `ngx-quill`) | Simplifies integration, leverages Angular lifecycle |
+| Lazy load heavy modules                                   | Improve initial load time                           |
+| Sanitize HTML if saving rich text                         | Prevent XSS attacks                                 |
+| Use `ViewChild` to access editor/chart instances          | For programmatic control                            |
+
+---
+
+### ✅ Summary Table
+
+| Library Type     | Popular Packages                       | Angular Support                 |
+| ---------------- | -------------------------------------- | ------------------------------- |
+| Charting         | Chart.js + ng2-charts                  | ✅ Wrapper                      |
+|                  | ApexCharts + ngx-apexcharts            | ✅ Wrapper                      |
+| Rich Text Editor | Quill + ngx-quill                      | ✅ Wrapper                      |
+|                  | CKEditor + @ckeditor/ckeditor5-angular | ✅ Official Angular Integration |
 
 ---
 
