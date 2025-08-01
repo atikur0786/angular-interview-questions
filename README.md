@@ -44,7 +44,7 @@ This open-source guide covers foundational Angular interview questions with clea
 36. [How would you share data between unrelated components in Angular?](#36-how-would-you-share-data-between-unrelated-components-in-angular)
 37. [How do you handle file upload and preview in Angular?](#37-how-do-you-handle-file-upload-and-preview-in-angular)
 38. [How would you integrate a third-party chart library or rich text editor in Angular?](#38-how-would-you-integrate-a-third-party-chart-library-or-rich-text-editor-n-angular)
-39. [How do you handle environment-based configurations (dev/prod)?](#39-how-do-you-handle-environment-based-configurations-devprod)
+39. [How do you handle environment-based configurations (dev/prod) in Angular?](#39-how-do-you-handle-environment-based-configurations-devprod-in-angular)
 40. [How would you lazy load and preload Angular modules?](#40-how-would-you-lazy-load-and-preload-angular-modules)
 
 ---
@@ -4250,6 +4250,125 @@ export class RichTextComponent {
 |                  | ApexCharts + ngx-apexcharts            | ✅ Wrapper                      |
 | Rich Text Editor | Quill + ngx-quill                      | ✅ Wrapper                      |
 |                  | CKEditor + @ckeditor/ckeditor5-angular | ✅ Official Angular Integration |
+
+---
+
+<div align="right">
+    <b><a href="#table-of-contents">↥ back to top</a></b>
+</div>
+
+## 39. How do you handle environment-based configurations (dev/prod) in Angular?\*\*
+
+Angular provides built-in support for managing different configurations (e.g., development, staging, production) using the **`src/environments/`** directory and **file replacements** during build time.
+
+---
+
+### ✅ Step-by-Step Guide
+
+#### 1. **Define Environment Files**
+
+Create environment-specific files under `src/environments/`:
+
+- `environment.ts` → for development
+- `environment.prod.ts` → for production
+- You can also create more: `environment.staging.ts`, etc.
+
+```ts
+// environment.ts
+export const environment = {
+  production: false,
+  apiBaseUrl: "https://dev-api.example.com",
+};
+```
+
+```ts
+// environment.prod.ts
+export const environment = {
+  production: true,
+  apiBaseUrl: "https://api.example.com",
+};
+```
+
+---
+
+#### 2. **Use Environment Config in Code**
+
+You can import and use the configuration anywhere in your app:
+
+```ts
+import { environment } from "../environments/environment";
+
+this.http.get(`${environment.apiBaseUrl}/users`);
+```
+
+---
+
+#### 3. **Configure File Replacements in `angular.json`**
+
+Angular replaces `environment.ts` with `environment.prod.ts` during production builds.
+
+```json
+"fileReplacements": [
+  {
+    "replace": "src/environments/environment.ts",
+    "with": "src/environments/environment.prod.ts"
+  }
+]
+```
+
+You can also add more configurations (like staging) under different configurations.
+
+---
+
+#### 4. **Build with the Right Configuration**
+
+- Development:
+
+  ```bash
+  ng serve
+  ```
+
+- Production:
+
+  ```bash
+  ng build --configuration production
+  ```
+
+- Custom config (e.g., staging):
+
+  ```bash
+  ng build --configuration staging
+  ```
+
+---
+
+### ✅ Best Practices
+
+| Practice                                                                               | Reason                                    |
+| -------------------------------------------------------------------------------------- | ----------------------------------------- |
+| Keep secrets (API keys, tokens) **out** of environment files                           | Avoid exposing sensitive data in frontend |
+| Use Angular CLI configurations instead of manually checking `window.location.hostname` | Cleaner and safer                         |
+| Avoid hardcoding URLs                                                                  | Use `environment` consistently            |
+| Consider `.env` files with build tools like `dotenv-webpack` if using custom builders  | More flexible for CI/CD                   |
+
+---
+
+### ✅ Example Use Case
+
+```ts
+// api.service.ts
+import { HttpClient } from "@angular/common/http";
+import { environment } from "../../environments/environment";
+
+@Injectable()
+export class ApiService {
+  constructor(private http: HttpClient) {}
+
+  getUsers() {
+    return this.http.get(`${environment.apiBaseUrl}/users`);
+  }
+}
+```
 
 ---
 
