@@ -4375,3 +4375,116 @@ export class ApiService {
 <div align="right">
     <b><a href="#table-of-contents">↥ back to top</a></b>
 </div>
+
+## 40. How would you lazy load and preload Angular modules?\*\*
+
+In Angular, **lazy loading** allows you to load feature modules **only when they're needed**, improving performance. **Preloading** helps by loading those modules in the background **after the app starts**.
+
+---
+
+### 🚀 **Lazy Loading**
+
+#### ✅ Step 1: Create a Feature Module with Routing
+
+```bash
+ng generate module features/dashboard --route dashboard --module app
+```
+
+This sets up lazy loading automatically.
+
+Or manually:
+
+```ts
+// app-routing.module.ts
+const routes: Routes = [
+  {
+    path: "dashboard",
+    loadChildren: () =>
+      import("./features/dashboard/dashboard.module").then(
+        (m) => m.DashboardModule
+      ),
+  },
+];
+```
+
+> ✅ This uses **dynamic imports** to load the module only when `dashboard` route is accessed.
+
+---
+
+#### ✅ Step 2: Configure the Feature Module
+
+```ts
+// dashboard-routing.module.ts
+const routes: Routes = [{ path: "", component: DashboardComponent }];
+
+@NgModule({
+  imports: [RouterModule.forChild(routes)],
+  exports: [RouterModule],
+})
+export class DashboardRoutingModule {}
+```
+
+---
+
+### ⚡️ **Preloading Modules**
+
+Lazy loading improves initial load, but if users will visit multiple routes, preloading improves performance.
+
+#### ✅ Enable Preloading
+
+```ts
+// app-routing.module.ts
+import { PreloadAllModules } from "@angular/router";
+
+@NgModule({
+  imports: [
+    RouterModule.forRoot(routes, {
+      preloadingStrategy: PreloadAllModules,
+    }),
+  ],
+  exports: [RouterModule],
+})
+export class AppRoutingModule {}
+```
+
+> 📦 `PreloadAllModules` tells Angular to preload **all lazy-loaded modules** in the background after app starts.
+
+---
+
+### 🔧 Custom Preloading Strategy (Advanced)
+
+You can write custom logic to preload only some modules:
+
+```ts
+export class CustomPreloadingStrategy implements PreloadingStrategy {
+  preload(route: Route, load: () => Observable<any>): Observable<any> {
+    return route.data && route.data["preload"] ? load() : of(null);
+  }
+}
+```
+
+Use it in route:
+
+```ts
+{
+  path: 'admin',
+  loadChildren: () => import('./admin/admin.module').then(m => m.AdminModule),
+  data: { preload: true }
+}
+```
+
+---
+
+### 🧠 Summary
+
+| Feature             | Benefit                                       |
+| ------------------- | --------------------------------------------- |
+| **Lazy Loading**    | Reduces initial bundle size                   |
+| **Preloading**      | Improves navigation speed                     |
+| **Custom Strategy** | Fine-grained control over what gets preloaded |
+
+---
+
+<div align="right">
+    <b><a href="#table-of-contents">↥ back to top</a></b>
+</div>
